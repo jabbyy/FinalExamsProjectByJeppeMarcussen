@@ -2,10 +2,11 @@
 <PageTitle>Index</PageTitle>
 
 <p>@text</p>
-<AuthorizeView>
+<AuthorizeView Roles="Administrator">
     <Authorized>
         <p>Hello @context.User.Identity.Name</p>
     </Authorized>
+
     <NotAuthorized>
         <p>You are not authorized to view this content!</p>
     </NotAuthorized>
@@ -23,7 +24,7 @@
         var user = AuthState.User;
         if (user.Identity.IsAuthenticated)
         {
-            text = "It works;";
+            
         }
     }
 }

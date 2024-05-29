@@ -9,11 +9,16 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        public RegisterModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public RegisterModel(
+            UserManager<IdentityUser> userManager, 
+            SignInManager<IdentityUser> signInManager, 
+            RoleManager<IdentityRole> roleManager)
         {
 
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
 
         }
 
@@ -33,7 +38,12 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
                 var identity = new IdentityUser { UserName = Input.Email, Email = Input.Email };
                 var result = await _userManager.CreateAsync(identity, Input.Password);
 
-                if(result.Succeeded)
+                var role = new IdentityRole(Input.Role);
+                var addRoleResult = await _roleManager.CreateAsync(role);
+
+                var addUserRoleResult = await _userManager.AddToRoleAsync(identity, Input.Role);
+
+                if(result.Succeeded && addRoleResult.Succeeded && addUserRoleResult.Succeeded)
                 {
                     await _signInManager.SignInAsync(identity, isPersistent: false);
                     return LocalRedirect(ReturnUrl);
@@ -52,6 +62,9 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
+
+            [Required]
+            public string Role { get; set; }
         }
     }
 }
