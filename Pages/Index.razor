@@ -1,9 +1,29 @@
 ﻿@page "/"
-
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<p>@text</p>
+<AuthorizeView>
+    <Authorized>
+        <p>Hello @context.User.Identity.Name</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
-Welcome to your new app.
+@code {
+    public string text { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+    protected override async Task OnInitializedAsync()
+    {
+        var AuthState = await AuthenticationStateTask;
+        var user = AuthState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            text = "It works;";
+        }
+    }
+}

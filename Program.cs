@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Svendeprøve_projekt_BodyFitBlazor.Data;
+using Svendeprøve_projekt_BodyFitBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>( options =>
     options.SignIn.RequireConfirmedEmail = false;
 })
     .AddEntityFrameworkStores<DataContext>();
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityValidationProvider<IdentityUser>>();
 
 var app = builder.Build();
 
