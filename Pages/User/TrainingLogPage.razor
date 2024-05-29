@@ -10,6 +10,9 @@
 
 
 <PageTitle>Trænings Log</PageTitle>
+<AuthorizeView>
+    <Authorized>
+
 
 <h3>TrainingLog</h3>
 
@@ -80,6 +83,11 @@
         }
     }
 </div>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to look at this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 
 

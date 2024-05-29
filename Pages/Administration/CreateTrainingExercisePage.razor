@@ -3,6 +3,9 @@
 @using Services
 @inject TrainingExercisesService _trainingExerciseContext
 @inject CategoriesService _categoryContext
+<AuthorizeView Roles="Administrator">
+    <Authorized>
+
 
 
 <h3>Opret Træningsøvelse</h3>
@@ -90,6 +93,11 @@
             </ul>
             </div>
 }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private TrainingExercises newTrainingExercise = new TrainingExercises();

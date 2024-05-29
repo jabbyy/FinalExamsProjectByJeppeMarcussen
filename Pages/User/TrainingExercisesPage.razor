@@ -6,6 +6,9 @@
 @inject TrainingLogService _trainingLogService
 @inject NavigationManager _navigationManager;
 <PageTitle>Træningsøvelser</PageTitle>
+<AuthorizeView>
+    <Authorized>
+
 <h3>TrainingExercises</h3>
 
 
@@ -73,7 +76,11 @@
         </div>
     </div>
 }
-
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 
 

@@ -5,7 +5,14 @@
 
 <PageTitle>Create Category - Admin</PageTitle>
 
+<AuthorizeView Roles="Administrator">
+    <Authorized>
 
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
 <h3>Opret Kategori</h3>
 <h4>@ErrorMsg</h4>
 @if (addedSuccessfully)
