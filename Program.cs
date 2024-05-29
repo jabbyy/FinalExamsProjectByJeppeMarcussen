@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Svendeprøve_projekt_BodyFitBlazor.Codes;
 using Svendeprøve_projekt_BodyFitBlazor.Data;
+using Svendeprøve_projekt_BodyFitBlazor.Repository;
 using Svendeprøve_projekt_BodyFitBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,11 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 var cs = builder.Configuration.GetConnectionString("Default");
+var csFitness = builder.Configuration.GetConnectionString("FitnessDb");
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(cs));
-
+builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(csFitness));
+builder.Services.AddSingleton<Encryption>();
+builder.Services.AddSingleton<NavigationClass>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>( options =>
 {
     options.Password.RequireDigit = false;
@@ -28,7 +32,16 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>( options =>
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataContext>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityValidationProvider<IdentityUser>>();
-
+builder.Services.AddScoped<ITrainingExercisesRepository, TrainingExercisesRepo>();
+builder.Services.AddScoped<TrainingExercisesService>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepo>();
+builder.Services.AddScoped<CategoriesService>();
+builder.Services.AddScoped<IUserProfileRepository, UserRepo>();
+builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<IExercisesAddedToLogRepo, ExerciseAddedToLogRepo>();
+builder.Services.AddScoped<ExerciseAddedToLogService>();
+builder.Services.AddScoped<ITrainingLogRepo, TrainingLogRepo>();
+builder.Services.AddScoped<TrainingLogService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

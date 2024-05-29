@@ -1,0 +1,192 @@
+﻿@page "/MyProfile"
+@using Services
+@using Models
+@inject UserProfileService _profileServiceContext;
+@inject NavigationManager _navigationManager;
+
+
+<PageTitle>My Profile</PageTitle>
+<AuthorizeView>
+    <Authorized>
+
+
+@if (addedSuccessfully)
+{
+    <p style="color: green;">Bruger profil oprettet!</p>
+}
+
+@if (userInfoList.Count == 0)
+{
+    <div>
+        <h2>Oh uhh....</h2>
+        <p>There seems to be nothing here...</p>
+        @*<button @onclick="@(()=>_navigationManager.NavigateTo("/CreateUserProfile"))" type="button" class="btn btn-primary">Create User Profile</button>*@
+        <button @onclick="@(()=>AddProfile = true)" type="button" class="btn btn-primary">Create User Profile</button>
+    </div>
+}
+
+
+@if (AddProfile)
+{
+    <div class="row">
+        <div class="form-group">
+            <form @onsubmit="CreateProfile">
+                @*                <input type="hidden" id="newEmail" @bind="newUser.UserEmail" />*@
+                <div class="col">
+                    <label for="FirstName">Første navn</label>
+                    <br />
+                    <input type="text" id="FirstName" @bind="newUser.FirstName" />
+                </div>
+                <div class="col">
+                    <label for="LastName">Efternavn</label>
+                    <br />
+                    <input type="text" id="LastName" @bind="newUser.LastName" />
+                </div>
+                <div class="col">
+                    <label for="City">By</label>
+                    <br />
+                    <input type="text" id="City" @bind="newUser.City" />
+                </div>
+                <div class="col">
+                    <label for="Postal">Post Nummer</label>
+                    <br />
+                    <input type="number" id="Postal" @bind="newUser.Postal" />
+                </div>
+                <div class="col">
+                    <label for="Age">Alder</label>
+                    <br />
+                    <input type="number" id="Age" @bind="newUser.Age" />
+                </div>
+                <br />
+                <button class="btn btn-primary" type="submit">Opret Profil</button>
+            </form>
+        </div>
+    </div>
+}
+
+@if (userInfoList != null)
+{
+    @foreach (var item in userInfoList)
+    {
+        <div class="form-group">
+
+            <h1>My Profile</h1>
+            <h3>Your user information</h3>
+            <div>
+                <label>First name:</label>
+                <p>@item.FirstName</p>
+            </div>
+            <div>
+                <label>Last Name:</label>
+                <p>@item.LastName</p>
+            </div>
+            <div>
+                <label>City: </label>
+                <p>@item.City</p>
+            </div>
+            <div>
+                <label>Postal code: </label>
+                <p>@item.Postal</p>
+            </div>
+            <div>
+                <label>Age:</label>
+                <p>@item.Age</p>
+            </div>
+
+            <a class="btn btn-primary" href="/edit/@Id">Edit</a>
+            <button @onclick="() => DeleteInfo(item.Id)" type="button" class="btn btn-danger">Delete your info</button>
+        </div>
+    }
+}
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to see this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    // Strings
+    public string? UserEmail;
+    public string? name;
+    //Bools
+    private bool addedSuccessfully = false;
+    private bool AddProfile = false;
+    // UserInfo List
+    public List<UserInfo> userInfoList = new List<UserInfo>();
+    // UserInfo property to create new user
+    private UserInfo newUser = new UserInfo();
+    UserInfo selectedUserInfo;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var AuthState = await authenticationStateTask; // Getting authentication state
+        var user = AuthState.User;
+        if (user.Identity != null)
+        {
+            if (!user.Identity.IsAuthenticated)
+            {
+                _navigationManager.NavigateTo("Identity/Account/Login");
+            }
+        }
+        UserEmail = user.Identity.Name;
+        await GetProfile(UserEmail);
+        SetId();
+
+    }
+
+    protected void SetId()
+    {
+        foreach (var item in userInfoList)
+        {
+            Id = item.Id;
+        }
+    }
+
+    public async Task GetProfile(string userEmail)
+    {
+        try
+        {
+            userInfoList = await _profileServiceContext.GetProfile(userEmail);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    public async Task CreateProfile()
+    {
+        try
+        {
+            newUser.UserEmail = UserEmail;
+            await _profileServiceContext.CreateProfile(newUser);
+            addedSuccessfully = true;
+            AddProfile = false;
+            await GetProfile(UserEmail);
+
+        }
+        catch (Exception e)
+        {
+
+            throw;
+        }
+    }
+
+
+
+    public async Task DeleteInfo(int Id)
+    {
+        await _profileServiceContext.DeleteProfile(Id);
+        _navigationManager.NavigateTo("/", true);
+    }
+}

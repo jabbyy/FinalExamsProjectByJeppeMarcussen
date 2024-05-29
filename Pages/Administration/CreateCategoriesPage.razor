@@ -1,0 +1,146 @@
+﻿@page "/CreateCategory"
+@using Svendeprøve_projekt_BodyFitBlazor.Models;
+@using Svendeprøve_projekt_BodyFitBlazor.Services;
+@inject CategoriesService _categoriesService
+
+<PageTitle>Create Category - Admin</PageTitle>
+
+
+<h3>Opret Kategori</h3>
+<h4>@ErrorMsg</h4>
+@if (addedSuccessfully)
+{
+    <p style="color: green;">Category added successfully!</p>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form @onsubmit="CreateCategory">
+            <div class="form-group">
+                <label for="categoryName">Category Name</label>
+                <input type="text" id="categoryName" @bind="newCategory.CategoryName" maxlength="50" />
+
+                <button class="btn btn-primary" type="submit">Add Category</button>
+
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+@if (categories != null)
+{
+    <h3>Alle Kategorier</h3>
+    <div class="row">
+
+        <ul class="list-group ">
+            @foreach (var category in categories)
+            {
+                <div class="col">
+
+                <li class="list-group-item d-inline-block">
+                        @category.CategoryName
+                    <button class="btn btn-secondary" @onclick="() => EditCategory(category)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => DeleteCategory(category.Id)">Delete</button>
+                </li>
+        </div>
+            }
+        </ul>
+        </div>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        @if (selectedCategory != null)
+        {
+            <form @onsubmit="UpdateCategory">
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" id="categoryName" @bind="selectedCategory.CategoryName" maxlength="50" />
+                    <button class="btn btn-primary" type="submit">Update Category</button>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@code {
+    private Categories newCategory = new Categories();
+    private bool addedSuccessfully = false;
+    private string ErrorMsg = string.Empty;
+    List<Categories> categories;
+    Categories selectedCategory;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllCategories();
+    }
+
+
+    private async Task CreateCategory()
+    {
+        try
+        {
+
+            await _categoriesService.AddCategory(newCategory);
+            addedSuccessfully = true;
+            await GetAllCategories();
+        }
+        catch (Exception e)
+        {
+            ErrorMsg = e.Message;
+        }
+    }
+
+    private async Task UpdateCategory()
+    {
+        try
+        {
+            await _categoriesService.UpdateCategoriesAsync(selectedCategory);
+            selectedCategory = null;
+        }
+        catch (Exception e)
+        {
+            ErrorMsg = e.Message;
+        }
+    }
+
+    private async Task GetAllCategories()
+    {
+        try
+        {
+            categories = await _categoriesService.GetAllCategoriesAsync();
+        }
+        catch (Exception e)
+        {
+            ErrorMsg = e.Message;
+        }
+    }
+
+    private void EditCategory(Categories category)
+    {
+        selectedCategory = category;
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        try
+        {
+            await _categoriesService.DeleteCategoriesAsync(categoryId);
+            categories = await _categoriesService.GetAllCategoriesAsync();
+
+        }
+        catch (Exception e)
+        {
+            ErrorMsg = e.Message;
+        }
+    }
+
+
+}
