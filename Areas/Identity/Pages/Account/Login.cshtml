@@ -1,12 +1,15 @@
 ﻿@page
+@using Svendeprøve_projekt_BodyFitBlazor.Shared
 @model Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account.LoginModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Log in";
 }
 
-<h1>@ViewData["Title"]</h1>
+<component type="typeof(NavMenu)" render-mode="ServerPrerendered" />
 <div class="row" style="margin: 50px">
     <div class="col-md-4">
+        <h1>@ViewData["Title"]</h1>
         <section>
             <form id="account" method="post">
                 <h2>Use a local account to login.</h2>
@@ -27,7 +30,7 @@
                 </div>
             </form>
         </section>
-
+        <h4>Click Home again <a href="~/">Home</a></h4>
     </div>
 
 </div>

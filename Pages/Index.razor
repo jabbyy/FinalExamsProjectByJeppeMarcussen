@@ -1,19 +1,58 @@
 ﻿@page "/"
+@using Models;
+@using Services
+@inject UserProfileService _userProfileService;
 <PageTitle>Index</PageTitle>
 
-<p>@text</p>
+<style>
+    body{
+        background-image: url("https://images4.alphacoders.com/134/1345029.png");
+        background-size: contain;
+    }
+    h1, h2, h3, h4{
+        color: white;
+    }
+
+    #dad a {
+        color: pink;
+    }
+</style>
+
 <AuthorizeView>
     <Authorized>
-        <p>Hello @context.User.Identity.Name</p>
+        
+        @if(userInfoList.Count > 0)
+        {
+            <div id="dad">
+            @foreach(var user in userInfoList)
+            {
+                <p>Hello, @user.FirstName @user.LastName</p>
+            }
+            </div>
+        }
+        else
+        {
+            <p>Hello @UserEmail</p>
+        }
+        @if (ShowError)
+        {
+            <p style="color: red">@ErrorMsg</p>
+        }
     </Authorized>
 
     <NotAuthorized>
-        <p>You are not authorized to view this content!</p>
+        <h1>Welcome to Body Fit!</h1>
+        <h3>You can sign up here <a href="/Identity/Account/Register">Register</a></h3>
+        <h3>Or you can sign in here: <a href="/Identity/Account/Login">Login</a></h3>
+        <p>At our website you can view training exercises, create a training log and more!</p>
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
-    public string text { get; set; }
+    private string ErrorMsg { get; set; }
+    private bool ShowError;
+    public List<UserInfo> userInfoList = new List<UserInfo>();
+    private string UserEmail { get; set; }
     [CascadingParameter]
     public Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
@@ -24,7 +63,24 @@
         var user = AuthState.User;
         if (user.Identity.IsAuthenticated)
         {
-            
+            if(user != null)
+            {
+                UserEmail = user.Identity.Name;
+            }
+        }
+        await GetProfile(UserEmail);
+    }
+
+    public async Task GetProfile(string email)
+    {
+        try
+        {
+            userInfoList = await _userProfileService.GetProfile(email);
+        }
+        catch (Exception)
+        {
+            ErrorMsg = "Failed to get profile!";
+            ShowError = true;
         }
     }
 }
