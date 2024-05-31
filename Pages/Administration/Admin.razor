@@ -2,8 +2,9 @@
 @using Microsoft.AspNetCore.Identity;
 @using Microsoft.EntityFrameworkCore;
 @inject UserManager<IdentityUser> UserManager;
-
-<h3>Admin</h3>
+<AuthorizeView Roles="Administrator">
+    <Authorized >
+<h3>Administrer brugere</h3>
 
 @foreach(var user in identityUser)
 {
@@ -12,6 +13,12 @@
         <button @onclick="() => EditUserRole(user.Id)" class="btn btn-primary">Edit</button> 
         <button @onclick="() => DeleteUser(user.Id)" class="btn btn-danger">Delete</button></p>
 }
+
+    </Authorized>
+    <NotAuthorized>
+        <p style="color: red; font-size: 25px;">Du har ikke tilladelse til at tilgå dette indhold!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     public List<IdentityUser> identityUser = new List<IdentityUser>();
