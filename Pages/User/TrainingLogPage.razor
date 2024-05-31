@@ -27,6 +27,12 @@
     <p style="color: red;">@ErrorMsgFromGetProfile</p>
 }
 
+
+@if (string.IsNullOrEmpty(errorFromGettingLog))
+{
+            <p style="color: red;">@errorFromGettingLog</p>
+}
+
 @if (CantCreate)
 {
     <p style="color: red;">@CantCreateLogDate</p>
@@ -130,6 +136,9 @@
     // EditExercisesAdded fields
     private TrainingExerciseAddedToLog newExerciseAdded = new TrainingExerciseAddedToLog();
     TrainingExerciseAddedToLog? selectedExerciseAdded;
+
+
+    private string errorFromGettingLog = string.Empty;
     private string profileUrl = "/MyProfile";
     private bool addedSuccessfully = false;
     public string? UserEmail;
@@ -188,7 +197,7 @@
             catch (Exception)
             {
 
-                throw;
+                errorFromGettingLog = "Couldnt retrieve logs)";
             }
         }
     }
