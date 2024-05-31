@@ -119,7 +119,10 @@ else
                     await _categoriesService.AddCategory(newCategory);
                     addedSuccessfully = true;
                     await GetAllCategories();
+                    if(showError == true)
+                    {
                     showError = false;
+                    }
 
                     // Rest form
                     newCategory = new Categories();

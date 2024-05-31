@@ -13,13 +13,17 @@
 {
     <p style="color: green;">Category added successfully!</p>
 }
+@if (showError)
+{
+    <p style="color: red;">Du skal vælge en kategori for at oprette en træningsøvelse</p>
+}
 <div class="row">
     <div class="col-md-4">
         <form @onsubmit="CreateTrainingExercise">
             <div class="form-group">
                 <label for="Name">Træningsøvelses Navn</label>
                 <br />
-                <input type="text" id="Name" @bind="newTrainingExercise.Name" />
+                <input maxlength="50" type="text" id="Name" @bind="newTrainingExercise.Name" />
             </div>
             <div class="form-group">
                 <label for="Description">Beskrivelse</label>
@@ -101,9 +105,10 @@
 </AuthorizeView>
 
 @code {
-    private TrainingExercises newTrainingExercise = new TrainingExercises();
+    private bool showError = false;
     private bool addedSuccessfully = false;
     private string ErrorMsg = string.Empty;
+    private TrainingExercises newTrainingExercise = new TrainingExercises();
     private List<Categories> categories = new List<Categories>();
     private List<TrainingExercises> trainingExercises = new List<TrainingExercises>();
     TrainingExercises? selectedTrainingExercises;
@@ -133,10 +138,19 @@
     {
         try
         {
+            if(newTrainingExercise.CategoryId > 0)
+            {
+                await _trainingExerciseContext.AddTrainingExercise(newTrainingExercise);
+                addedSuccessfully = true;
+                await GetAllTrainingExercises();
 
-            await _trainingExerciseContext.AddTrainingExercise(newTrainingExercise);
-            addedSuccessfully = true;
-            await GetAllTrainingExercises();
+                //Resetting the form
+                newTrainingExercise = new TrainingExercises();    
+            }
+            else if(newTrainingExercise.CategoryId == 0)
+            {
+                showError = true;
+            }
         }
         catch (Exception e)
         {
