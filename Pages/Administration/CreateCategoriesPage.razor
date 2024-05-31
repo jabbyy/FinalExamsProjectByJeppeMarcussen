@@ -15,9 +15,16 @@
     <p style="color: green;">Category added successfully!</p>
 }
 
+        <p style="color: red;">@alreadyAdded</p>
+
+@if (showError)
+{
+    <p style="color: red;">Kategorien's navn kan ikke være tom eller hedde ingenting!'</p>        
+}
+
 <div class="row">
     <div class="col-md-4">
-        <form @onsubmit="CreateCategory">
+        <form @ref="formElement" @onsubmit="CreateCategory">
             <div class="form-group">
                 <label for="categoryName">Category Name</label>
                 <input type="text" id="categoryName" @bind="newCategory.CategoryName" maxlength="50" />
@@ -77,8 +84,11 @@ else
     </NotAuthorized>
 </AuthorizeView>
 @code {
+    private ElementReference formElement;
+    private string alreadyAdded;
     private Categories newCategory = new Categories();
     private bool addedSuccessfully = false;
+    private bool showError = false;
     private string ErrorMsg = string.Empty;
     List<Categories> categories;
     Categories selectedCategory;
@@ -88,15 +98,34 @@ else
         await GetAllCategories();
     }
 
-
+    // newCategory.CategoryName != null || newCategory.CategoryName != " " || newCategory.CategoryName != string.Empty
     private async Task CreateCategory()
     {
         try
         {
+            //if(addedSuccessfully == true)
+            //{
+            //    alreadyAdded = "Du har allerede oprettet en kategori, venligst refresh for at oprette en ny!";
+            //}
+            //else
+            {
 
-            await _categoriesService.AddCategory(newCategory);
-            addedSuccessfully = true;
-            await GetAllCategories();
+                if (string.IsNullOrWhiteSpace(newCategory.CategoryName))
+                {
+                    showError = true;
+                }
+                else
+                {
+                    await _categoriesService.AddCategory(newCategory);
+                    addedSuccessfully = true;
+                    await GetAllCategories();
+                    showError = false;
+
+                    // Rest form
+                    newCategory = new Categories();
+                    await InvokeAsync(() => StateHasChanged());
+                }
+            }
         }
         catch (Exception e)
         {

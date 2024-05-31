@@ -94,7 +94,7 @@
             </div>
 
             <a class="btn btn-primary" href="/edit/@Id">Edit</a>
-            <button @onclick="() => DeleteInfo(item.Id)" type="button" class="btn btn-danger">Delete your info</button>
+            @*<button @onclick="() => DeleteInfo(item.Id)" type="button" class="btn btn-danger">Delete your info</button>*@
         </div>
     }
 }
@@ -103,7 +103,6 @@
         <p>You are not authorized to see this content!</p>
     </NotAuthorized>
 </AuthorizeView>
-
 
 
 
@@ -125,6 +124,9 @@
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
