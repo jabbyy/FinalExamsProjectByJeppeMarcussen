@@ -54,7 +54,8 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
 
         public async Task UpdateExercisesAddedToLog(TrainingExerciseAddedToLog exerciseAddedToLog)
         {
-            throw new NotImplementedException();
+            _databaseContext.Entry(exerciseAddedToLog).State = EntityState.Modified;
+            await _databaseContext.SaveChangesAsync();
         }
     }
 }

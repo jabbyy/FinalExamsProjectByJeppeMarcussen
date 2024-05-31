@@ -6,6 +6,7 @@
 @inject UserProfileService _UserProfileContext;
 @inject NavigationManager _navigationManager;
 @inject NavigationClass _forceNavigationReload;
+@inject ExerciseAddedToLogService _exercisesAddedToLog; 
 
 
 
@@ -40,6 +41,31 @@
             <button class="btn btn-primary" @onclick="() => _navigationManager.NavigateTo(profileUrl)">Create Profile</button>
         }
         <br />
+
+        @if (selectedExerciseAdded != null)
+        {
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <div class="card border border-primary">
+                    <div class="card-body">
+                        <form @onsubmit="UpdateExerciseAdded" class="form-group">
+
+                        <label>Navn:</label>
+                        <p class="exercise-name">@selectedExerciseAdded.TrainingExercises.Name</p>
+                        <label>Repetitioner:</label>
+                                <input class="exercise-details" id="Repetitions" @bind="selectedExerciseAdded.Repetitions" />
+                        <label>Sets:</label>
+                                <input class="exercise-details" id="Sets" @bind="selectedExerciseAdded.Sets" />
+                        <label>Vægt:</label>
+                                <input class="exercise-details" id="weight" @bind="selectedExerciseAdded.weight" KG />
+                        <button type="submit" class="btn btn-primary">Gem</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
 
 <div class="row container-fluid">
     @if (trainingLogsList.Count > 0)
@@ -78,6 +104,8 @@
                                     <p class="exercise-details">@exercise.Sets</p>
                                     <label>Vægt:</label>
                                     <p class="exercise-details">@exercise.weight KG</p>
+                                    <button @onclick="() => EditExerciseAdded(exercise)" class="btn btn-secondary">Rediger</button>
+                                    <button @onclick="() => DeleteExerciseAdded(exercise.Id)" class="btn btn-danger">Slet</button>
                                 </div>
                             </div>
                         </div>
@@ -99,6 +127,9 @@
 
 
 @code {
+    // EditExercisesAdded fields
+    private TrainingExerciseAddedToLog newExerciseAdded = new TrainingExerciseAddedToLog();
+    TrainingExerciseAddedToLog? selectedExerciseAdded;
     private string profileUrl = "/MyProfile";
     private bool addedSuccessfully = false;
     public string? UserEmail;
@@ -162,6 +193,43 @@
         }
     }
 
+    public async Task EditExerciseAdded(TrainingExerciseAddedToLog trainingExerciseAddedToLog)
+    {
+        if(trainingExerciseAddedToLog != null)
+        {
+            selectedExerciseAdded = trainingExerciseAddedToLog;
+        }
+
+    }
+
+    public async Task DeleteExerciseAdded(int Id)
+    {
+        try
+        {
+            await _exercisesAddedToLog.DeleteExerciseAdded(Id);
+            await GetTraininglogs(userId);
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+    }
+
+    public async Task UpdateExerciseAdded()
+    {
+        try
+        {
+            await _exercisesAddedToLog.UpdateExerciseAdded(selectedExerciseAdded);
+            selectedExerciseAdded = null;
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+    }
+
     public async Task GetTraininglogs(int Id)
     {
         try
@@ -187,6 +255,10 @@
                     await GetTraininglogs(userId);
                     _forceNavigationReload.ReloadPage(_navigationManager, uri);
                     addedSuccessfully = true;
+                    if(CantCreate == true)
+                    {
+                        CantCreate = false;
+                    }
                 }
                 else
                 {
