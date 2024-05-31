@@ -14,7 +14,7 @@
     <Authorized>
 
 
-<h3>TrainingLog</h3>
+<h3>Din Trænings log!</h3>
 
 @if (addedSuccessfully)
 {
@@ -30,9 +30,16 @@
 {
     <p style="color: red;">@CantCreateLogDate</p>
 }
-
-<button @onclick="() => CreateTrainingLog(trainingLog1)" class="btn btn-primary">Opret Træningslog</button>
-<br />
+        @if(userId > 0)
+        {
+            <button @onclick="() => CreateTrainingLog(trainingLog1)" class="btn btn-primary">Opret Træningslog</button>
+        }
+        else
+        {
+            <p style="color: red; font-size: 30px;">Please create a user profile before creating your training log!</p>
+            <button class="btn btn-primary" @onclick="() => _navigationManager.NavigateTo(profileUrl)">Create Profile</button>
+        }
+        <br />
 
 <div class="row container-fluid">
     @if (trainingLogsList.Count > 0)
@@ -92,6 +99,7 @@
 
 
 @code {
+    private string profileUrl = "/MyProfile";
     private bool addedSuccessfully = false;
     public string? UserEmail;
     public int userId;

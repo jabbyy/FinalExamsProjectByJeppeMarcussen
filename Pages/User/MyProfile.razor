@@ -18,10 +18,10 @@
 @if (userInfoList.Count == 0)
 {
     <div>
-        <h2>Oh uhh....</h2>
-        <p>There seems to be nothing here...</p>
+        <h2>Du har ingen bruger profil!</h2>
+        <p>Opret en bruger profil for at kunne bruge funktioner, som træningslogs!</p>
         @*<button @onclick="@(()=>_navigationManager.NavigateTo("/CreateUserProfile"))" type="button" class="btn btn-primary">Create User Profile</button>*@
-        <button @onclick="@(()=>AddProfile = true)" type="button" class="btn btn-primary">Create User Profile</button>
+        <button @onclick="@(()=>AddProfile = true)" type="button" class="btn btn-primary">Opret Bruger Profil</button>
     </div>
 }
 

@@ -31,11 +31,12 @@
 
                 <label for="CategoryId">Vælg Kategori</label>
                 <select id="CategoryId" @bind="newTrainingExercise.CategoryId">
+                        <option>Vælg En Kategori</option>
                     @foreach (var category in categories)
                     {
-                        <option value="@category.Id">@category.CategoryName</option> @*Bug hvor allerede valgte option når man kommer på siden ikke virker*@
-                    }                                                               @*, så hvis man skal have den man allerede er på skal vælge en anden og så tilbage *@
-                </select>                                                              @*og så virker den. prøv at fix hvis der er tid, den virker stadig og det er en admin funktion*@
+                        <option value="@category.Id">@category.CategoryName</option> 
+                    }                                                               
+                </select>                                                              
             </div>
 
             <button class="btn btn-primary" type="submit">Opret Træningsøvelser</button>

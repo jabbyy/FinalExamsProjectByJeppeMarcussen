@@ -39,14 +39,13 @@
         <ul class="list-group ">
             @foreach (var category in categories)
             {
-                <div class="col">
-
+              <div class="col">
                 <li class="list-group-item d-inline-block">
                         @category.CategoryName
                     <button class="btn btn-secondary" @onclick="() => EditCategory(category)">Edit</button>
                     <button class="btn btn-danger" @onclick="() => DeleteCategory(category.Id)">Delete</button>
                 </li>
-        </div>
+              </div>
             }
         </ul>
         </div>
