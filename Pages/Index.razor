@@ -1,9 +1,102 @@
 ﻿@page "/"
-
+@using Models;
+@using Services
+@inject UserProfileService _userProfileService;
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<style>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+</style>
+
+<AuthorizeView>
+    <Authorized>
+        
+        @if(userInfoList.Count > 0)
+        {
+            <div id="dad">
+            @foreach(var user in userInfoList)
+            {
+                <p>Hello, @user.FirstName @user.LastName</p>
+            }
+            </div>
+        }
+        else
+        {
+            <p>Hello @UserEmail</p>
+        }
+        @if (ShowError)
+        {
+            <p style="color: red">@ErrorMsg</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h1>Welcome to Body Fit!</h1>
+        <h3>You can sign up here <a href="/Identity/Account/Register">Register</a></h3>
+        <h3>Or you can sign in here: <a href="/Identity/Account/Login">Login</a></h3>
+        <p >At our website you can view training exercises, create a training log and more!</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+<div class="container">
+    @foreach(var chunk in ChunkedUrls)
+    {
+        <div class="row">
+            @foreach(var url in chunk)
+            {
+                <div class="col-md-4">
+                    <img src="@url" class="img-fluid" alt="Image" />
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string ErrorMsg { get; set; }
+    private bool ShowError;
+    public List<UserInfo> userInfoList = new List<UserInfo>();
+    private string UserEmail { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    List<string> ImageUrls = new List<string>
+    {
+        "https://i.imgur.com/oNspyWa.jpeg",
+        "https://i.imgur.com/lPwU0wb.jpeg",
+        "https://i.imgur.com/awLJaRE.jpeg"
+    };
+    List<List<string>> ChunkedUrls => ImageUrls.Select((x, i) => new { Index = i, Value = x })
+                                                .GroupBy(x => x.Index / 3)
+                                                .Select(g => g.Select(x => x.Value).ToList())
+                                                .ToList();
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var AuthState = await AuthenticationStateTask;
+        var user = AuthState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            if(user != null)
+            {
+                UserEmail = user.Identity.Name;
+            }
+        }
+        await GetProfile(UserEmail);
+    }
+
+    public async Task GetProfile(string email)
+    {
+        try
+        {
+            userInfoList = await _userProfileService.GetProfile(email);
+        }
+        catch (Exception)
+        {
+            ErrorMsg = "Failed to get profile!";
+            ShowError = true;
+        }
+    }
+}

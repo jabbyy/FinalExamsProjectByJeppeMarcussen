@@ -1,0 +1,345 @@
+﻿@page "/TrainingLog"
+@using Models
+@using Services
+@using Codes
+@inject TrainingLogService _TrainingLogContext;
+@inject UserProfileService _UserProfileContext;
+@inject NavigationManager _navigationManager;
+@inject NavigationClass _forceNavigationReload;
+@inject ExerciseAddedToLogService _exercisesAddedToLog; 
+
+
+
+<PageTitle>Trænings Log</PageTitle>
+<AuthorizeView>
+    <Authorized>
+
+
+<h3>Din Trænings log!</h3>
+<p style="font-size: 12px; font-style: italic; color: dimgray;">* Dato format = Måned/Dag/År</p>
+@if (addedSuccessfully)
+{
+    <p style="color: green;">Bruger profil oprettet!</p>
+}
+
+@if (ErrorMsgFromGetProfile != null)
+{
+    <p style="color: red;">@ErrorMsgFromGetProfile</p>
+}
+
+
+@if (string.IsNullOrEmpty(errorFromGettingLog))
+{
+            <p style="color: red;">@errorFromGettingLog</p>
+}
+
+@if (CantCreate)
+{
+    <p style="color: red;">@CantCreateLogDate</p>
+}
+        @if(userId > 0)
+        {
+            <button @onclick="() => CreateTrainingLog(trainingLog1)" class="btn btn-primary">Opret Træningslog</button>
+        }
+        else
+        {
+            <p style="color: red; font-size: 30px;">Please create a user profile before creating your training log!</p>
+            <button class="btn btn-primary" @onclick="() => _navigationManager.NavigateTo(profileUrl)">Create Profile</button>
+        }
+        <br />
+
+        @if (selectedExerciseAdded != null)
+        {
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <div class="card border border-primary">
+                    <div class="card-body">
+                        <form @onsubmit="UpdateExerciseAdded" class="form-group">
+
+                        <label>Navn:</label>
+                        <p class="exercise-name">@selectedExerciseAdded.TrainingExercises.Name</p>
+                        <label>Repetitioner:</label>
+                                <input class="exercise-details" id="Repetitions" @bind="selectedExerciseAdded.Repetitions" />
+                        <label>Sets:</label>
+                                <input class="exercise-details" id="Sets" @bind="selectedExerciseAdded.Sets" />
+                        <label>Vægt:</label>
+                                <input class="exercise-details" id="weight" @bind="selectedExerciseAdded.weight" KG />
+                        <button type="submit" class="btn btn-primary">Gem</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+<div class="row container-fluid">
+    @if (trainingLogsList.Count > 0)
+    {
+        @foreach (var log in trainingLogsList)
+        {
+            <div class="row gx-0 border border-info">
+                <div class="col-auto">
+                    <h4 id="h4-hover" style="color: black; cursor: pointer;" @onclick="() => ToggleContent(log.Id)">@log.Date.ToShortDateString()</h4>
+                </div>
+                <div class="col-auto">
+                    <button style="max-width: 80px;" class="btn btn-secondary">Rediger</button>
+                </div>
+                <div class="col-auto">
+                    <button @onclick="() => DeleteTrainingLog(log.Id)" style="max-width: 70px;" class="btn btn-danger">Slet</button>
+                </div>
+
+            </div>
+
+
+
+
+            <div class="additional-content" style="display: @(expandedLogId == log.Id ? "block" : "none")">
+                <div class="row">
+                    @foreach (var exercise in log.ExerciseAddedToLog)
+                    {
+                        <div class="col-md-2 mb-3">
+                            <div class="card border border-primary">
+                                <div class="card-body">
+
+                                    <label>Navn:</label>
+                                    <p class="exercise-name">@exercise.TrainingExercises.Name</p>
+                                    <label>Repetitioner:</label>
+                                    <p class="exercise-details">@exercise.Repetitions</p>
+                                    <label>Sets:</label>
+                                    <p class="exercise-details">@exercise.Sets</p>
+                                    <label>Vægt:</label>
+                                    <p class="exercise-details">@exercise.weight KG</p>
+                                    <button @onclick="() => EditExerciseAdded(exercise)" class="btn btn-secondary">Rediger</button>
+                                    <button @onclick="() => DeleteExerciseAdded(exercise.Id)" class="btn btn-danger">Slet</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
+
+        }
+    }
+</div>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to look at this content!</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    // EditExercisesAdded fields
+    private TrainingExerciseAddedToLog newExerciseAdded = new TrainingExerciseAddedToLog();
+    TrainingExerciseAddedToLog? selectedExerciseAdded;
+
+
+    private string errorFromGettingLog = string.Empty;
+    private string profileUrl = "/MyProfile";
+    private bool addedSuccessfully = false;
+    public string? UserEmail;
+    public int userId;
+    public DateTime date = DateTime.Now;
+    public string? ErrorMsgFromGetProfile = null;
+    // Create log fields
+    private bool CantCreate = false;
+    private string CantCreateLogDate = string.Empty;
+    private int expandedLogId;
+    private string uri = "/TrainingLog";
+    // Model Fields
+    public TrainingLog trainingLog1 = new TrainingLog();
+    public UserInfo userInfo1 = new UserInfo();
+
+    // Lists
+    public List<TrainingLog> trainingLogsList = new List<TrainingLog>();
+    public List<UserInfo> userInfoList = new List<UserInfo>();
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var AuthState = await authenticationStateTask; // Getting authentication state
+        var user = AuthState.User;
+        if (user.Identity != null)
+        {
+            if (!user.Identity.IsAuthenticated)
+            {
+                _navigationManager.NavigateTo("Identity/Account/Login");
+            }
+        }
+        UserEmail = user.Identity.Name;
+        if (UserEmail != null)
+        {
+            try
+            {
+                await GetProfile(UserEmail);
+
+            }
+            catch (Exception)
+            {
+                ErrorMsgFromGetProfile = "Couldn't get profile";
+            }
+        }
+        trainingLog1.Date = date;
+        trainingLog1.userId = userId;
+        trainingLog1.UserInfo = userInfo1;
+
+        if (userId > 0)
+        {
+            try
+            {
+                await GetTraininglogs(userId);
+            }
+            catch (Exception)
+            {
+
+                errorFromGettingLog = "Couldnt retrieve logs)";
+            }
+        }
+    }
+
+    public async Task EditExerciseAdded(TrainingExerciseAddedToLog trainingExerciseAddedToLog)
+    {
+        if(trainingExerciseAddedToLog != null)
+        {
+            selectedExerciseAdded = trainingExerciseAddedToLog;
+        }
+
+    }
+
+    public async Task DeleteExerciseAdded(int Id)
+    {
+        try
+        {
+            await _exercisesAddedToLog.DeleteExerciseAdded(Id);
+            await GetTraininglogs(userId);
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+    }
+
+    public async Task UpdateExerciseAdded()
+    {
+        try
+        {
+            await _exercisesAddedToLog.UpdateExerciseAdded(selectedExerciseAdded);
+            selectedExerciseAdded = null;
+        }
+        catch (Exception)
+        {
+            
+            throw;
+        }
+    }
+
+    public async Task GetTraininglogs(int Id)
+    {
+        try
+        {
+            trainingLogsList = await _TrainingLogContext.GetAllTrainingLogs(Id);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    public async Task CreateTrainingLog(TrainingLog trainingLog)
+    {
+        try
+        {
+            if (userId != 0)
+            {
+                var existingLog = await _TrainingLogContext.CompareLogDateToToday(userId, trainingLog.Date);
+                if (existingLog == false)
+                {
+                    await _TrainingLogContext.CreateTrainingLog(trainingLog);
+                    await GetTraininglogs(userId);
+                    _forceNavigationReload.ReloadPage(_navigationManager, uri);
+                    addedSuccessfully = true;
+                    if(CantCreate == true)
+                    {
+                        CantCreate = false;
+                    }
+                }
+                else
+                {
+                    CantCreateLogDate = "Der findes allerede en log for i dag";
+                    CantCreate = true;
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    public async Task GetProfile(string userEmail)
+    {
+        try
+        {
+            userInfoList = await _UserProfileContext.GetProfile(userEmail);
+
+            if (userInfoList != null && userInfoList.Count > 0)
+            {
+                userId = userInfoList[0].Id;
+
+            }
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    public async Task DeleteTrainingLog(int Id)
+    {
+        if (Id > 0)
+        {
+
+            try
+            {
+                await _TrainingLogContext.DeleteTrainingLog(Id);
+                _forceNavigationReload.ReloadPage(_navigationManager, uri);
+                trainingLogsList = await _TrainingLogContext.GetAllTrainingLogs(Id);
+                addedSuccessfully = true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+
+    public async Task UpdateTrainingLog()
+    {
+
+    }
+
+
+
+    void ToggleContent(int logId)
+    {
+        if (expandedLogId == logId)
+        {
+            expandedLogId = -1; // Collapse if already expanded
+        }
+        else
+        {
+            expandedLogId = logId; // Expand the selected item
+        }
+    }
+}

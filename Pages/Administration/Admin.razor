@@ -1,0 +1,70 @@
+﻿@page "/Admin"
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
+@inject UserManager<IdentityUser> UserManager;
+<AuthorizeView Roles="Administrator">
+    <Authorized >
+<h3>Administrer brugere</h3>
+
+@foreach(var user in identityUser)
+{
+    <p>
+        @user.UserName - Roles: @rolesDictionary[user.Id]
+        <button @onclick="() => EditUserRole(user.Id)" class="btn btn-primary">Edit</button> 
+        <button @onclick="() => DeleteUser(user.Id)" class="btn btn-danger">Delete</button></p>
+}
+
+    </Authorized>
+    <NotAuthorized>
+        <p style="color: red; font-size: 25px;">Du har ikke tilladelse til at tilgå dette indhold!</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    public List<IdentityUser> identityUser = new List<IdentityUser>();
+    public Dictionary<string, string> userRoles = new Dictionary<string, string>();
+    public Dictionary<string, string> rolesDictionary = new Dictionary<string, string>();
+    protected override async Task OnInitializedAsync()
+    {
+        identityUser = await UserManager.Users.ToListAsync();
+
+            rolesDictionary = await GetUserRoles();
+
+    }
+
+    async Task<Dictionary<string, string>> GetUserRoles()
+    {
+        
+        var rolesDictionary = new Dictionary<string, string>();
+        foreach (var user in identityUser)
+        {
+            var userRoles = await UserManager.GetRolesAsync(user);
+            rolesDictionary.Add(user.Id, string.Join(",", userRoles));
+        }
+
+        return rolesDictionary;
+    }
+
+    public async Task EditUserRole(string userId)
+    {
+        var user = await UserManager.FindByIdAsync(userId);
+        if (await UserManager.IsInRoleAsync(user, "Administrator"))
+        {
+            await UserManager.RemoveFromRoleAsync(user, "Administrator");
+            rolesDictionary = await GetUserRoles();
+        }
+        else
+        {
+            await UserManager.AddToRoleAsync(user, "Administrator");
+            rolesDictionary = await GetUserRoles();
+        }
+    }
+
+    public async Task DeleteUser(string userId)
+    {
+        var user = await UserManager.FindByIdAsync(userId);
+        await UserManager.DeleteAsync(user);
+        identityUser = await UserManager.Users.ToListAsync();
+    }
+
+}

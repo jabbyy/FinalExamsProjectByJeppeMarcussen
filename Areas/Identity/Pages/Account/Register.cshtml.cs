@@ -9,17 +9,24 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        public RegisterModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public RegisterModel(
+            UserManager<IdentityUser> userManager, 
+            SignInManager<IdentityUser> signInManager, 
+            RoleManager<IdentityRole> roleManager)
         {
 
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
 
         }
 
         [BindProperty]
         public InputModel Input { get; set; }
         public string ReturnUrl { get; set; }
+
+        private const string DefaultUserRole = "User";
         public void OnGet()
         {
             ReturnUrl = Url.Content("~/");
@@ -33,8 +40,15 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
                 var identity = new IdentityUser { UserName = Input.Email, Email = Input.Email };
                 var result = await _userManager.CreateAsync(identity, Input.Password);
 
+
                 if(result.Succeeded)
                 {
+                    if (!_roleManager.RoleExistsAsync(DefaultUserRole).Result)
+                    {
+                        var role = new IdentityRole(DefaultUserRole);
+                        await _roleManager.CreateAsync(role);
+                    }
+                    await _userManager.AddToRoleAsync(identity, DefaultUserRole);
                     await _signInManager.SignInAsync(identity, isPersistent: false);
                     return LocalRedirect(ReturnUrl);
                 }
@@ -52,6 +66,9 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
+
+            //[Required]
+            //public string Role { get; set; }
         }
     }
 }
