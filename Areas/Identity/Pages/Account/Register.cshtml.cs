@@ -25,6 +25,8 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }
         public string ReturnUrl { get; set; }
+
+        private const string DefaultUserRole = "User";
         public void OnGet()
         {
             ReturnUrl = Url.Content("~/");
@@ -38,13 +40,15 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
                 var identity = new IdentityUser { UserName = Input.Email, Email = Input.Email };
                 var result = await _userManager.CreateAsync(identity, Input.Password);
 
-                var role = new IdentityRole(Input.Role);
-                var addRoleResult = await _roleManager.CreateAsync(role);
 
-                var addUserRoleResult = await _userManager.AddToRoleAsync(identity, Input.Role);
-
-                if(result.Succeeded && addRoleResult.Succeeded && addUserRoleResult.Succeeded)
+                if(result.Succeeded)
                 {
+                    if (!_roleManager.RoleExistsAsync(DefaultUserRole).Result)
+                    {
+                        var role = new IdentityRole(DefaultUserRole);
+                        await _roleManager.CreateAsync(role);
+                    }
+                    await _userManager.AddToRoleAsync(identity, DefaultUserRole);
                     await _signInManager.SignInAsync(identity, isPersistent: false);
                     return LocalRedirect(ReturnUrl);
                 }
@@ -63,8 +67,8 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
-            [Required]
-            public string Role { get; set; }
+            //[Required]
+            //public string Role { get; set; }
         }
     }
 }

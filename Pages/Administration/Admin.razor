@@ -28,7 +28,7 @@
     async Task<Dictionary<string, string>> GetUserRoles()
     {
         
-
+        var rolesDictionary = new Dictionary<string, string>();
         foreach (var user in identityUser)
         {
             var userRoles = await UserManager.GetRolesAsync(user);
