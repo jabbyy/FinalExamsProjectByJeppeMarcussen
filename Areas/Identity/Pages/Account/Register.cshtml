@@ -4,12 +4,12 @@
     ViewData["Title"] = "Register";
 }
 
-<h1>@ViewData["Title"]</h1>
 <div class="row" style="margin: 50px">
     <div class="col-md-4">
+<h1>@ViewData["Title"]</h1>
         <section>
             <form id="account" method="post">
-                <h2>Use a local account to login.</h2>
+                <h2>Opret en lokal konto for at kunne logge ind i Body Fit!</h2>
                 <hr/>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-floating" style="margin:10px">
@@ -32,6 +32,8 @@
                 </div>
             </form>
         </section>
+        <h4>Klik tilbage til forsiden -> <a href="~/">Home</a></h4>
+        <h4>Har du allerede en konto? <a href="/Identity/Account/Login">Login!</a> </h4>
 
     </div>
 
