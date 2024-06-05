@@ -30,6 +30,12 @@
                 </div>
             </form>
         </section>
+        @{
+            if (!string.IsNullOrEmpty(Model.ErrorMsg))
+            {
+                <div class="text-danger">@Model.ErrorMsg</div>
+            }
+        }
         <h4>Gå tilbage til forsiden -> <a href="~/">Home</a></h4>
         <h4>Har du ingen konto? <a href="/Identity/Account/Register">Opret dig her!</a> </h4>
     </div>

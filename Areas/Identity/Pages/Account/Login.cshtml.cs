@@ -13,14 +13,19 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
             _signInManager = signInManager;
         }
 
+        [TempData]
+        public string ErrorMsg { get; set; }
+
 
         [BindProperty]
         public InputModel Input { get; set; }
         public string ReturnUrl { get; set; }
+
         public void OnGet()
         {
             ReturnUrl = Url.Content("~/");
         }
+
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -35,6 +40,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Areas.Identity.Pages.Account
                     return LocalRedirect(ReturnUrl);
                 }
             }
+            ErrorMsg = "Email eller password er forkert! Prøv venlist igen!";
             return Page();
         }
 
