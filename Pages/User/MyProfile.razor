@@ -15,6 +15,11 @@
     <p style="color: green;">Bruger profil oprettet!</p>
 }
 
+@*@if (ShowError)
+{
+    <p style="color: red;">Bruger profil oprettet!</p>
+}*@
+
 @if (userInfoList.Count == 0)
 {
     <div>

@@ -98,16 +98,12 @@ else
         await GetAllCategories();
     }
 
-    // newCategory.CategoryName != null || newCategory.CategoryName != " " || newCategory.CategoryName != string.Empty
+
     private async Task CreateCategory()
     {
         try
         {
-            //if(addedSuccessfully == true)
-            //{
-            //    alreadyAdded = "Du har allerede oprettet en kategori, venligst refresh for at oprette en ny!";
-            //}
-            //else
+
             {
 
                 if (string.IsNullOrWhiteSpace(newCategory.CategoryName))
@@ -121,7 +117,7 @@ else
                     await GetAllCategories();
                     if(showError == true)
                     {
-                    showError = false;
+                        showError = false;
                     }
 
                     // Rest form
@@ -140,8 +136,15 @@ else
     {
         try
         {
+            if(string.IsNullOrWhiteSpace(selectedCategory.CategoryName))
+            {
+                showError = true;
+            }
+            else
+            {
             await _categoriesService.UpdateCategoriesAsync(selectedCategory);
             selectedCategory = null;
+            }
         }
         catch (Exception e)
         {
