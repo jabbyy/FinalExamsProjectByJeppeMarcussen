@@ -1,98 +1,78 @@
-﻿@page "/CreateUserProfile"
+﻿@page "/edit/{Id:int}"
 @using Models
-@using Services
 @inject NavigationManager _navigationManager;
-@inject UserProfileService _UserServiceContext;
-<PageTitle>Create User Profile</PageTitle>
+@inject Repository.UserRepo _context;
+@inject Services.UserProfileService _userProfileServiceContext;
 
 
-<AuthorizeView>
-    <Authorized>
+<h3>Edit your user information</h3>
 
-<h3>Add your user information</h3>
-<div class="row">
-    <div class="col-md-4">
-        <form>
-            <div class="form-group">
-                <label>First Name</label>
-                <input type="text" name="FirstName" @bind="FirstName" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" name="LastName" @bind="LastName" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>City</label>
-                <input type="text" name="City" @bind="City" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label>Postal Code</label>
-                <input type="number" name="Postal" @bind="Postal" class="form-control" maxlength="4" />
-            </div>
-            <div class="form-group">
-                <label>Age</label>
-                <input type="number" name="Age" @bind="Age" class="form-control" />
-            </div>
-            <div>
-                <br />
-                <button @onclick="HandleValidSubmit" type="submit" class="btn btn-primary">Save</button>
-                <button type="reset" class="btn btn-danger">Clear All</button>
-            </div>
-            <div>
-                <p>@Error</p>
-            </div>
-            <p>@Error</p>
-        </form>
+
+
+<EditForm Model="@user" OnValidSubmit="@HandleOnValidSubmit" class="col-7 p-0">
+    <div class="form-group">
+        <label for="FirstName">First Name</label>
+        <InputText id="FirstName" @bind-Value="@user.FirstName" class="form-control" placeholder="FirstName" />
     </div>
-</div>
-@if (addedSuccessfully)
-{
-    <p style="color: green;">Category added successfully!</p>
-}
-    </Authorized>
-    <NotAuthorized>
-        <p>You are not authorized to view this content! </p>
-    </NotAuthorized>
-</AuthorizeView>
+    <div class="form-group">
+        <label for="LastName">Last Name</label>
+        <InputText id="FirstName" @bind-Value="@user.LastName" class="form-control" placeholder="Last name" />
+    </div>
+    <div class="form-group">
+        <label for="FirstName">City</label>
+        <InputText id="City" @bind-Value="@user.City" class="form-control" placeholder="City" />
+    </div>
+    <div class="form-group">
+        <label for="FirstName">Postal</label>
+        <InputNumber id="Postal" @bind-Value="@user.Postal" class="form-control" placeholder="Postal" />
+    </div>
+    <div class="form-group">
+        <label for="FirstName">Age</label>
+        <InputNumber id="Age" @bind-Value="@user.Age" class="form-control" placeholder="Age" />
+    </div>
+    <br />
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+
+
+</EditForm>
+
 
 @code {
-    private bool addedSuccessfully = false;
-    public string Error { get; set; }
-    public string UserEmail { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string City { get; set; }
-    public int Postal { get; set; }
-    public int Age { get; set; }
 
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
-    private UserInfo userInfo = new UserInfo();
+    public UserInfo user = new UserInfo();
 
-    protected async override void OnInitialized()
+    [Parameter]
+    public int? Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
     {
-        var authstate = await AuthenticationStateTask;
-        var user = authstate.User;
-        if (user != null)
+        if (Id != null)
         {
-            UserEmail = user.Identity.Name;
+            user = await _context.getSingle(Id.Value);
         }
     }
 
-    private async void HandleValidSubmit()
+    private async void HandleOnValidSubmit()
     {
         try
         {
-            await _UserServiceContext.CreateProfile(userInfo);
-            addedSuccessfully = true;
-
-
-
+            if (Id != null)
+            {
+                await _userProfileServiceContext.UpdateProfile(Id.Value, user);
+                _navigationManager.NavigateTo("/MyProfile");
+            }
         }
         catch (Exception ex)
         {
             string message = ex.Message;
         }
 
+
+
     }
+
+
 }

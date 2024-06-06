@@ -42,6 +42,7 @@ builder.Services.AddScoped<IExercisesAddedToLogRepo, ExerciseAddedToLogRepo>();
 builder.Services.AddScoped<ExerciseAddedToLogService>();
 builder.Services.AddScoped<ITrainingLogRepo, TrainingLogRepo>();
 builder.Services.AddScoped<TrainingLogService>();
+builder.Services.AddScoped<UserRepo>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
