@@ -15,10 +15,7 @@
     <p style="color: green;">Bruger profil oprettet!</p>
 }
 
-@*@if (ShowError)
-{
-    <p style="color: red;">Bruger profil oprettet!</p>
-}*@
+
 
 @if (userInfoList.Count == 0)
 {
@@ -36,7 +33,7 @@
     <div class="row">
         <div class="form-group">
             <form @onsubmit="CreateProfile">
-                @*                <input type="hidden" id="newEmail" @bind="newUser.UserEmail" />*@
+                
                 <div class="col">
                     <label for="FirstName">Første navn</label>
                     <br />
@@ -62,6 +59,10 @@
                     <br />
                     <input type="number" id="Age" @bind="newUser.Age" />
                 </div>
+                        @if (showError)
+                        {
+                            <p style="color: red;">Et eller flere felter er tomme, venligst udfyld dem!</p>
+                        }
                 <br />
                 <button class="btn btn-primary" type="submit">Opret Profil</button>
             </form>
@@ -121,6 +122,7 @@
     //Bools
     private bool addedSuccessfully = false;
     private bool AddProfile = false;
+    private bool showError = false;
     // UserInfo List
     public List<UserInfo> userInfoList = new List<UserInfo>();
     // UserInfo property to create new user
@@ -175,11 +177,38 @@
     {
         try
         {
-            newUser.UserEmail = UserEmail;
-            await _profileServiceContext.CreateProfile(newUser);
-            addedSuccessfully = true;
-            AddProfile = false;
-            await GetProfile(UserEmail);
+            if (string.IsNullOrWhiteSpace(newUser.FirstName))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.LastName))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.City))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.Postal.ToString()))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.Age.ToString()))
+            {
+                showError = true;
+            }            
+            else
+            {
+                newUser.UserEmail = UserEmail;
+                await _profileServiceContext.CreateProfile(newUser);
+                addedSuccessfully = true;
+                AddProfile = false;
+                await GetProfile(UserEmail);
+                if(showError == true)
+                {
+                    showError = false;
+                }
+            }
 
         }
         catch (Exception e)
