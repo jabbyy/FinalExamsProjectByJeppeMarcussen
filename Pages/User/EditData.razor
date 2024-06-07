@@ -6,9 +6,9 @@
 
 <AuthorizeView Context="AuthContext">
     <Authorized>
-        @if (string.Equals(loggedInUserEmail, userProfileEmail, StringComparison.OrdinalIgnoreCase))
-        {
-            <p>This content is only displayed when the logged-in user matches the email in the user profile.</p>
+@if (string.Equals(loggedInUserEmail, userProfileEmail, StringComparison.OrdinalIgnoreCase))
+{
+            
 
 <h3>Edit your user information</h3>
 
@@ -47,11 +47,11 @@
 
 </EditForm>
 
-        }
-        else
-        {
-            <p>You are not allowed to see this content!</p>
-        }
+}
+else
+{
+     <p>You are not allowed to see this content!</p>
+}
     </Authorized>
     <NotAuthorized>
        <p>You are not authorized to see this page!</p>
