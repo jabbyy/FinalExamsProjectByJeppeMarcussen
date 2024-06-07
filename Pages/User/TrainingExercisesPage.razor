@@ -73,6 +73,10 @@
             </div>
 
             <button style="margin: 1px;" class="btn-primary" @onclick="AddExerciseToLog">Tilføj Til Log</button>
+                    @if (showError)
+                    {
+                        <p style="color: red;">Bruger profil oprettet!</p>
+                    }
         </div>
     </div>
 }
@@ -96,6 +100,7 @@
     private int weight;
     private int repetitions;
     private bool showForm = false;
+    private bool showError = false;
     private TrainingExercises selectedExercise;
     private TrainingLog trainingLog = new TrainingLog();
     List<Categories> categories;
@@ -181,10 +186,28 @@
                 TrainingLogId = latestTrainingLogId, // Assigning the last created log.
                 TrainingExercises = selectedExercise
             };
-
-        await _exerciseAddedService.CreateExerciseAdded(exerciseAddedToLog);
-        showForm = false; // Hide the form after adding the exercise
-        ResetForm();
+        if (string.IsNullOrWhiteSpace(exerciseAddedToLog.Sets.ToString()))
+        {
+            showError = true;
+        }
+        else if (string.IsNullOrWhiteSpace(exerciseAddedToLog.Repetitions.ToString()))
+        {
+            showError = true;
+        }
+        else if (string.IsNullOrWhiteSpace(exerciseAddedToLog.weight.ToString()))
+        {
+            showError = true;
+        }
+        else
+        {   
+            await _exerciseAddedService.CreateExerciseAdded(exerciseAddedToLog);
+            showForm = false; // Hide the form after adding the exercise
+            ResetForm();
+            if (showError == true)
+            {
+                showError = false;
+            }
+        }
     }
 
     private async Task GetLatestTrainingLogId()
