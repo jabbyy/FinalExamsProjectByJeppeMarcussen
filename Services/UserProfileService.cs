@@ -36,5 +36,15 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Services
         {
             await _userRepository.UpdateItem(Id, userInfo);
         }
+        public async Task<List<int>> GetAllUserIds()
+        {
+            return await _userRepository.GetAllUserIds();
+        }
+
+        public async Task<bool> CheckIfIdExists(int id)
+        {
+            List<int> userIds = await GetAllUserIds();
+            return userIds.Contains(id);
+        }
     }
 }

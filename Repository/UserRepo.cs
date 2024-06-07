@@ -11,6 +11,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
         Task<UserInfo> DeleteProfile(int Id);
         Task<UserInfo> CreateItem(UserInfo userInfo);
         Task<UserInfo> UpdateItem(int Id, UserInfo userInfo);
+        Task<List<int>> GetAllUserIds();
     }
 
     public class UserRepo : IUserProfileRepository
@@ -55,6 +56,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
             _context.Entry(userInfo).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return userInfo;
+        }
+        public async Task<List<int>> GetAllUserIds()
+        {
+            List<int> userIds = await _context.Users.Select(u => u.Id).ToListAsync();
+            return userIds;
         }
 
 

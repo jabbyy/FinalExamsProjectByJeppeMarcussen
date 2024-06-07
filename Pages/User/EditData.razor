@@ -4,12 +4,17 @@
 @inject Repository.UserRepo _context;
 @inject Services.UserProfileService _userProfileServiceContext;
 
+<AuthorizeView Context="AuthContext">
+    <Authorized>
+        @if (string.Equals(loggedInUserEmail, userProfileEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            <p>This content is only displayed when the logged-in user matches the email in the user profile.</p>
 
 <h3>Edit your user information</h3>
 
 
 
-<EditForm Model="@user" OnValidSubmit="@HandleOnValidSubmit" class="col-7 p-0">
+<EditForm Context="EditFormContext" Model="@user" OnValidSubmit="@HandleOnValidSubmit" class="col-7 p-0">
     <div class="form-group">
         <label for="FirstName">First Name</label>
         <InputText id="FirstName" @bind-Value="@user.FirstName" class="form-control" placeholder="FirstName" />
@@ -24,7 +29,7 @@
     </div>
     <div class="form-group">
         <label for="FirstName">Postal</label>
-        <InputNumber id="Postal" @bind-Value="@user.Postal" class="form-control" placeholder="Postal" />
+        <InputNumber id="Postal" @bind-Value="@user.Postal" class="form-control" placeholder="Post Nummer" />
     </div>
     <div class="form-group">
         <label for="FirstName">Age</label>
@@ -33,26 +38,61 @@
     <br />
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Save</button>
+        @if (showError)
+        {
+            <p style="color: red;">Et eller flere felter er tomme </p>
+        }
     </div>
 
 
 </EditForm>
 
+        }
+        else
+        {
+            <p>You are not allowed to see this content!</p>
+        }
+    </Authorized>
+    <NotAuthorized>
+       <p>You are not authorized to see this page!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
 
-    public UserInfo user = new UserInfo();
 
+    string loggedInUserEmail = string.Empty; 
+
+    // Retrieve the email from the user profile (assuming it's stored in a variable like userProfileEmail)
+    string userProfileEmail = string.Empty;
+
+
+    public string ?Email { get; set; }
+    public UserInfo ?user = new UserInfo();
+    public bool showError = false;
     [Parameter]
-    public int? Id { get; set; }
+    public int Id { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+
 
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != null)
+
+        bool idExists = await _userProfileServiceContext.CheckIfIdExists(Id);
+        if (idExists)
         {
-            user = await _context.getSingle(Id.Value);
+            user = await _context.getSingle(Id);
+            userProfileEmail = user.UserEmail;    
         }
+        else
+        {
+            _navigationManager.NavigateTo("/MyProfile");
+        }
+        var userState = await authenticationStateTask;
+        var email = userState.User;
+        loggedInUserEmail = email.Identity.Name;
     }
 
     private async void HandleOnValidSubmit()
@@ -61,8 +101,32 @@
         {
             if (Id != null)
             {
-                await _userProfileServiceContext.UpdateProfile(Id.Value, user);
+                if (string.IsNullOrWhiteSpace(user.FirstName))
+                {
+                    showError = true;
+                }                
+                else if (string.IsNullOrWhiteSpace(user.LastName))
+                {
+                    showError = true;
+                }         
+                else if (string.IsNullOrWhiteSpace(user.City))
+                {
+                    showError = true;
+                }           
+                else if (string.IsNullOrWhiteSpace(user.Postal.ToString()))
+                {
+                    showError = true;
+                }        
+                else if (string.IsNullOrWhiteSpace(user.Age.ToString()))
+                {
+                    showError = true;
+                }
+                else
+                {
+                await _userProfileServiceContext.UpdateProfile(Id, user);
                 _navigationManager.NavigateTo("/MyProfile");
+                    
+                }
             }
         }
         catch (Exception ex)
