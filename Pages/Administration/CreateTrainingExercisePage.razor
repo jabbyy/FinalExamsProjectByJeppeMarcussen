@@ -44,7 +44,6 @@
             </div>
 
             <button class="btn btn-primary" type="submit">Opret Træningsøvelser</button>
-
         </form>
         <h3>@ErrorMsg</h3>
     </div>
@@ -67,10 +66,14 @@
                     <select id="CategoryId" @bind="selectedTrainingExercises.CategoryId">
                         @foreach (var category in categories)
                         {
-                            <option value="@category.Id">@category.CategoryName</option> @*Bug hvor allerede valgte option når man kommer på siden ikke virker*@
-                        }                                                               @*, så hvis man skal have den man allerede er på skal vælge en anden og så tilbage *@
+                            <option value="@category.Id">@category.CategoryName</option> 
+                        }                                                               
                     </select>
                     <button class="btn btn-primary" type="submit">Opdater Træningsøvelse</button>
+                            @if (showUpdateError)
+                            {
+                                <p style="color: red;">Du skal vælge en kategori, indtaste navn og description for at oprette en træningsøvelse</p>
+                            }
                 </div>
             </form>
         }
@@ -106,6 +109,7 @@
 
 @code {
     private bool showError = false;
+    private bool showUpdateError = false;
     private bool addedSuccessfully = false;
     private string ErrorMsg = string.Empty;
     private TrainingExercises newTrainingExercise = new TrainingExercises();
@@ -138,31 +142,39 @@
     {
         try
         {
-            if(newTrainingExercise.CategoryId > 0 || string.IsNullOrWhiteSpace(newTrainingExercise.Name) || string.IsNullOrWhiteSpace(newTrainingExercise.Description))
+            if(newTrainingExercise.CategoryId > 0)
             {
-                await _trainingExerciseContext.AddTrainingExercise(newTrainingExercise);
-                addedSuccessfully = true;
-                await GetAllTrainingExercises();
-
-                //Resetting the form
-                newTrainingExercise = new TrainingExercises();    
-                if(showError == true)
+                if (!string.IsNullOrWhiteSpace(newTrainingExercise.Name))
                 {
-                    showError = false;
+                    if (!string.IsNullOrWhiteSpace(newTrainingExercise.Description))
+                    {
+
+                        await _trainingExerciseContext.AddTrainingExercise(newTrainingExercise);
+                        addedSuccessfully = true;
+                        await GetAllTrainingExercises();
+
+                        //Resetting the form
+                        newTrainingExercise = new TrainingExercises();    
+                        if(showError == true)
+                        {
+                            showError = false;
+                        }
+                    }
+                    else
+                    {
+                        showError = true;
+                    }
+                }
+                else
+                {
+                    showError = true;
                 }
             }
             else if(newTrainingExercise.CategoryId == 0)
             {
                 showError = true;
             }
-            else if (string.IsNullOrWhiteSpace(newTrainingExercise.Name))
-            {
-                showError = true;
-            }
-            else if(string.IsNullOrWhiteSpace(newTrainingExercise.Description))
-            {
-                showError = true;
-            }
+
         }
         catch (Exception e)
         {
@@ -185,8 +197,30 @@
     {
         try
         {
-            await _trainingExerciseContext.UpdateTrainingExercise(selectedTrainingExercises);
-            selectedTrainingExercises = null;
+            if (selectedTrainingExercises != null)
+            {
+                if (!string.IsNullOrWhiteSpace(selectedTrainingExercises.Name))
+                {
+                    if (!string.IsNullOrWhiteSpace(selectedTrainingExercises.Description))
+                    {
+                        await _trainingExerciseContext.UpdateTrainingExercise(selectedTrainingExercises);
+                        selectedTrainingExercises = null;
+                        if(showUpdateError == true)
+                        {
+                            showUpdateError = false;
+                        }
+
+                    }
+                    else
+                    {
+                        showUpdateError = true;
+                    }
+                }
+                else
+                {
+                    showUpdateError = true;
+                }
+            }
         }
         catch (Exception)
         {
