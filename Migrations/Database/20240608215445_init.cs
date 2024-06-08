@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 {
     /// <inheritdoc />
-    public partial class FitnessInitialcommit : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

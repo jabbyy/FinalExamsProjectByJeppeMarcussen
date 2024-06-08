@@ -31,6 +31,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>( options =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataContext>();
+
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityValidationProvider<IdentityUser>>();
 builder.Services.AddScoped<ITrainingExercisesRepository, TrainingExercisesRepo>();
 builder.Services.AddScoped<TrainingExercisesService>();
@@ -43,6 +44,17 @@ builder.Services.AddScoped<ExerciseAddedToLogService>();
 builder.Services.AddScoped<ITrainingLogRepo, TrainingLogRepo>();
 builder.Services.AddScoped<TrainingLogService>();
 builder.Services.AddScoped<UserRepo>();
+
+builder.Services.AddScoped<AESEncryption>(sp =>
+{
+    byte[] encryptionKey = new byte[32];
+    using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+    {
+        rng.GetBytes(encryptionKey);
+    }
+    return new AESEncryption(encryptionKey);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

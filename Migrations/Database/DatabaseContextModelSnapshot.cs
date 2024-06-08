@@ -195,11 +195,9 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", b =>
                 {
-                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", "UserInfo")
+                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", null)
                         .WithMany("log")
                         .HasForeignKey("UserInfoId");
-
-                    b.Navigation("UserInfo");
                 });
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.Categories", b =>

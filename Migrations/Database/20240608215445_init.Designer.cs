@@ -12,8 +12,8 @@ using Svendeprøve_projekt_BodyFitBlazor.Data;
 namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240529220939_FitnessInitialcommit")]
-    partial class FitnessInitialcommit
+    [Migration("20240608215445_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,11 +198,9 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", b =>
                 {
-                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", "UserInfo")
+                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", null)
                         .WithMany("log")
                         .HasForeignKey("UserInfoId");
-
-                    b.Navigation("UserInfo");
                 });
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.Categories", b =>

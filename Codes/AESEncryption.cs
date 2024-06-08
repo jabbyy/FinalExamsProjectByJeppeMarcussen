@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Security.Cryptography;
+    using System.Text;
 
     public class AESEncryption
     {
@@ -18,7 +19,7 @@
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = key;
-                aesAlg.IV = new byte[16]; // Initialization Vector
+                aesAlg.GenerateIV(); // Generate a random IV for each encryption
 
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
@@ -28,33 +29,43 @@
                 {
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(plainText);
-                        }
+                        byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+                        csEncrypt.Write(plainBytes, 0, plainBytes.Length);
                     }
 
                     encrypted = msEncrypt.ToArray();
                 }
 
-                return Convert.ToBase64String(encrypted);
+                // Combine IV and encrypted data
+                byte[] result = new byte[aesAlg.IV.Length + encrypted.Length];
+                Array.Copy(aesAlg.IV, 0, result, 0, aesAlg.IV.Length);
+                Array.Copy(encrypted, 0, result, aesAlg.IV.Length, encrypted.Length);
+
+                return Convert.ToBase64String(result);
             }
         }
 
-        public string DecryptString(string cipherText)
+        public string DecryptString(string encryptedText)
         {
+            byte[] encryptedData = Convert.FromBase64String(encryptedText);
+
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = key;
-                aesAlg.IV = new byte[16]; // Initialization Vector
+
+                byte[] iv = new byte[aesAlg.BlockSize / 8];
+                byte[] cipherText = new byte[encryptedData.Length - iv.Length];
+
+                Array.Copy(encryptedData, iv, iv.Length);
+                Array.Copy(encryptedData, iv.Length, cipherText, 0, cipherText.Length);
+
+                aesAlg.IV = iv;
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                byte[] cipherTextBytes = Convert.FromBase64String(cipherText);
-
                 string plaintext = null;
 
-                using (MemoryStream msDecrypt = new MemoryStream(cipherTextBytes))
+                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
@@ -69,14 +80,15 @@
             }
         }
 
-        public byte[] EncryptNumber(int number)
+
+        public byte[] EncryptNumber(int number, byte[] key, byte[] iv)
         {
             byte[] numberBytes = BitConverter.GetBytes(number);
 
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = key;
-                aesAlg.IV = new byte[16]; // Initialization Vector
+                aesAlg.IV = iv;
 
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
@@ -96,12 +108,13 @@
             }
         }
 
-        public int DecryptNumber(byte[] encryptedNumber)
+
+        public int DecryptNumber(byte[] encryptedNumber, byte[] key, byte[] iv)
         {
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = key;
-                aesAlg.IV = new byte[16]; // Initialization Vector
+                aesAlg.IV = iv;
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
@@ -122,6 +135,7 @@
                 return BitConverter.ToInt32(decrypted, 0);
             }
         }
+
     }
 
 }
