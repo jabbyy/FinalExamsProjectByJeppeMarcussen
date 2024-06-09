@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 {
     /// <inheritdoc />
-    public partial class FitnessInitialcommit : Migration
+    public partial class test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -94,35 +94,46 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
                     Repetitions = table.Column<int>(type: "int", nullable: false),
                     Sets = table.Column<int>(type: "int", nullable: false),
                     weight = table.Column<int>(type: "int", nullable: false),
-                    TrainingExercisesId = table.Column<int>(type: "int", nullable: true),
                     TrainingExerciseId = table.Column<int>(type: "int", nullable: false),
-                    TrainingLogId = table.Column<int>(type: "int", nullable: false)
+                    TrainingLogId = table.Column<int>(type: "int", nullable: false),
+                    TrainingLogId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_trainingExerciseAddedToLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_trainingExerciseAddedToLogs_trainingExercises_TrainingExercisesId",
-                        column: x => x.TrainingExercisesId,
+                        name: "FK_trainingExerciseAddedToLogs_trainingExercises_TrainingExerciseId",
+                        column: x => x.TrainingExerciseId,
                         principalTable: "trainingExercises",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_trainingExerciseAddedToLogs_trainingLog_TrainingLogId",
                         column: x => x.TrainingLogId,
                         principalTable: "trainingLog",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_trainingExerciseAddedToLogs_trainingLog_TrainingLogId1",
+                        column: x => x.TrainingLogId1,
+                        principalTable: "trainingLog",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_trainingExerciseAddedToLogs_TrainingExercisesId",
+                name: "IX_trainingExerciseAddedToLogs_TrainingExerciseId",
                 table: "trainingExerciseAddedToLogs",
-                column: "TrainingExercisesId");
+                column: "TrainingExerciseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_trainingExerciseAddedToLogs_TrainingLogId",
                 table: "trainingExerciseAddedToLogs",
                 column: "TrainingLogId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_trainingExerciseAddedToLogs_TrainingLogId1",
+                table: "trainingExerciseAddedToLogs",
+                column: "TrainingLogId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_trainingExercises_CategoryId",

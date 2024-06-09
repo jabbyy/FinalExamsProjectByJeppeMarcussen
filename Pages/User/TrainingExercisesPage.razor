@@ -44,7 +44,7 @@
                                     <p class="card-text">@exercise.Description</p>
                                 </div>
                                 <div class="card-body">
-                                    <button @onclick="() => ShowForm(exercise)" class="btn-primary btn-outline-primary">Add to exercises</button>
+                                    <button @onclick="() => ShowForm(exercise)" class="btn btn-primary btn-outline-primary">Tilføj til log</button>
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,12 @@
                 <input type="number" @bind="repetitions" placeholder="Repetitions">
             </div>
 
-            <button style="margin: 1px;" class="btn-primary" @onclick="AddExerciseToLog">Tilføj Til Log</button>
+            <button style="margin: 1px;" class="btn btn-primary" @onclick="AddExerciseToLog">Tilføj Til Log</button>
+                    <button @onclick="() => CancelForm()" class="btn btn-danger">Luk</button>
+                    @if (showError)
+                    {
+                        <p style="color: red;">Felterne må ikke være 0</p>
+                    }
         </div>
     </div>
 }
@@ -96,6 +101,7 @@
     private int weight;
     private int repetitions;
     private bool showForm = false;
+    private bool showError = false;
     private TrainingExercises selectedExercise;
     private TrainingLog trainingLog = new TrainingLog();
     List<Categories> categories;
@@ -181,10 +187,28 @@
                 TrainingLogId = latestTrainingLogId, // Assigning the last created log.
                 TrainingExercises = selectedExercise
             };
-
-        await _exerciseAddedService.CreateExerciseAdded(exerciseAddedToLog);
-        showForm = false; // Hide the form after adding the exercise
-        ResetForm();
+        if (exerciseAddedToLog.Sets == 0)
+        {
+            showError = true;
+        }
+        else if (exerciseAddedToLog.Repetitions == 0)
+        {
+            showError = true;
+        }
+        else if (exerciseAddedToLog.weight == 0)
+        {
+            showError = true;
+        }
+        else
+        {   
+            await _exerciseAddedService.CreateExerciseAdded(exerciseAddedToLog);
+            showForm = false; // Hide the form after adding the exercise
+            ResetForm();
+            if (showError == true)
+            {
+                showError = false;
+            }
+        }
     }
 
     private async Task GetLatestTrainingLogId()
@@ -195,6 +219,12 @@
     private async Task GetTrainingLogById(int Id)
     {
         trainingLog = await _trainingLogService.GetTrainingLogById(Id);
+    }
+
+    private void CancelForm()
+    {
+        showForm = false;
+        ResetForm();
     }
 
 }

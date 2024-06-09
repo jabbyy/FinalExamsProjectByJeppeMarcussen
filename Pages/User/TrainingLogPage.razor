@@ -19,7 +19,7 @@
 <p style="font-size: 12px; font-style: italic; color: dimgray;">* Dato format = Måned/Dag/År</p>
 @if (addedSuccessfully)
 {
-    <p style="color: green;">Bruger profil oprettet!</p>
+    <p style="color: green;">Træningslog oprettet!</p>
 }
 
 @if (ErrorMsgFromGetProfile != null)
@@ -28,7 +28,7 @@
 }
 
 
-@if (string.IsNullOrEmpty(errorFromGettingLog))
+@if (!string.IsNullOrEmpty(errorFromGettingLog))
 {
             <p style="color: red;">@errorFromGettingLog</p>
 }
@@ -65,6 +65,10 @@
                         <label>Vægt:</label>
                                 <input class="exercise-details" id="weight" @bind="selectedExerciseAdded.weight" KG />
                         <button type="submit" class="btn btn-primary">Gem</button>
+                                @if (showError)
+                                {
+                                    <p style="color: red;">Felterne må ikke være 0</p>
+                                }
                         </form>
                         
                     </div>
@@ -140,10 +144,13 @@
     private TrainingExerciseAddedToLog newExerciseAdded = new TrainingExerciseAddedToLog();
     TrainingExerciseAddedToLog? selectedExerciseAdded;
 
-
+    //Strings
     private string errorFromGettingLog = string.Empty;
     private string profileUrl = "/MyProfile";
+    //Bools
     private bool addedSuccessfully = false;
+    private bool showError = false;
+
     public string? UserEmail;
     public int userId;
     public DateTime date = DateTime.Now;
@@ -160,6 +167,7 @@
     // Lists
     public List<TrainingLog> trainingLogsList = new List<TrainingLog>();
     public List<UserInfo> userInfoList = new List<UserInfo>();
+
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
@@ -189,7 +197,7 @@
         }
         trainingLog1.Date = date;
         trainingLog1.userId = userId;
-        trainingLog1.UserInfo = userInfo1;
+        //trainingLog1.UserInfo = userInfo1;
 
         if (userId > 0)
         {
@@ -223,7 +231,7 @@
         }
         catch (Exception)
         {
-            
+
             throw;
         }
     }
@@ -232,8 +240,27 @@
     {
         try
         {
-            await _exercisesAddedToLog.UpdateExerciseAdded(selectedExerciseAdded);
-            selectedExerciseAdded = null;
+            if(selectedExerciseAdded.Repetitions == 0)
+            {
+                showError = true;
+            }            
+            else if(selectedExerciseAdded.weight == 0)
+            {
+                showError = true;
+            }
+            else if(selectedExerciseAdded.Sets == 0)
+            {
+                showError = true;
+            }
+            else
+            {
+                await _exercisesAddedToLog.UpdateExerciseAdded(selectedExerciseAdded);
+                selectedExerciseAdded = null;
+                if(showError == true)
+                {
+                    showError = false;
+                }
+            }
         }
         catch (Exception)
         {

@@ -7,6 +7,7 @@ using Svendeprøve_projekt_BodyFitBlazor.Codes;
 using Svendeprøve_projekt_BodyFitBlazor.Data;
 using Svendeprøve_projekt_BodyFitBlazor.Repository;
 using Svendeprøve_projekt_BodyFitBlazor.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>( options =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DataContext>();
+
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityValidationProvider<IdentityUser>>();
 builder.Services.AddScoped<ITrainingExercisesRepository, TrainingExercisesRepo>();
 builder.Services.AddScoped<TrainingExercisesService>();
@@ -43,6 +45,23 @@ builder.Services.AddScoped<ExerciseAddedToLogService>();
 builder.Services.AddScoped<ITrainingLogRepo, TrainingLogRepo>();
 builder.Services.AddScoped<TrainingLogService>();
 builder.Services.AddScoped<UserRepo>();
+
+//builder.Services.AddSingleton<AESEncryption>(sp =>
+//{
+//    byte[] encryptionKey = new byte[32];
+//    using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+//    {
+//        rng.GetBytes(encryptionKey);
+//    }
+//    return new AESEncryption(encryptionKey);
+//});
+
+builder.Services.AddScoped<AESEncryption>(sp =>
+{
+    byte[] encryptionKey = Encoding.UTF8.GetBytes("YourSecureKeyOf32Characters!1234"); // Key 
+    return new AESEncryption(encryptionKey);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

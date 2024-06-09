@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Svendeprøve_projekt_BodyFitBlazor.Data;
 using Svendeprøve_projekt_BodyFitBlazor.Models;
+using Svendeprøve_projekt_BodyFitBlazor.Codes;
+
 
 namespace Svendeprøve_projekt_BodyFitBlazor.Repository
 {
@@ -11,19 +13,22 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
         Task<UserInfo> DeleteProfile(int Id);
         Task<UserInfo> CreateItem(UserInfo userInfo);
         Task<UserInfo> UpdateItem(int Id, UserInfo userInfo);
+        Task<List<int>> GetAllUserIds();
     }
 
     public class UserRepo : IUserProfileRepository
     {
         private readonly DatabaseContext _context;
+        //private readonly AESEncryption _aes;
 
-        public UserRepo(DatabaseContext context)
+        public UserRepo(DatabaseContext context, AESEncryption aes)
         {
             _context = context;
+            //_aes = aes;
         }
         public async Task<List<UserInfo>> getAll(string UserId)
         {
-            List<UserInfo> UserList = await _context.Users.Where(s => s.UserEmail == UserId).ToListAsync();      // .Users.Where(s => s.UserEmail == UserId).ToListAsync();
+            List<UserInfo> UserList = await _context.Users.Where(s => s.UserEmail == UserId).ToListAsync();     
             return UserList;
         }
         public async Task<UserInfo> getSingle(int Id)
@@ -41,6 +46,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
         {
             try
             {
+
                 _context.Users.Add(userInfo);
                 await _context.SaveChangesAsync();
             }
@@ -55,6 +61,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
             _context.Entry(userInfo).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return userInfo;
+        }
+        public async Task<List<int>> GetAllUserIds()
+        {
+            List<int> userIds = await _context.Users.Select(u => u.Id).ToListAsync();
+            return userIds;
         }
 
 

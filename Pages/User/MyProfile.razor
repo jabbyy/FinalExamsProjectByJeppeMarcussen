@@ -3,7 +3,8 @@
 @using Models
 @inject UserProfileService _profileServiceContext;
 @inject NavigationManager _navigationManager;
-
+@using Codes
+@inject AESEncryption _aesService;
 
 <PageTitle>My Profile</PageTitle>
 <AuthorizeView>
@@ -15,10 +16,11 @@
     <p style="color: green;">Bruger profil oprettet!</p>
 }
 
-@*@if (ShowError)
-{
-    <p style="color: red;">Bruger profil oprettet!</p>
-}*@
+<p>@_aesService.showException</p>
+<p>@_aesService.showException2</p>
+<p>@_aesService.originalPlainText</p>
+<p>@_aesService.encryptedText1</p>
+<p>@_aesService.decryptedText1</p>
 
 @if (userInfoList.Count == 0)
 {
@@ -36,7 +38,7 @@
     <div class="row">
         <div class="form-group">
             <form @onsubmit="CreateProfile">
-                @*                <input type="hidden" id="newEmail" @bind="newUser.UserEmail" />*@
+                
                 <div class="col">
                     <label for="FirstName">Første navn</label>
                     <br />
@@ -62,6 +64,10 @@
                     <br />
                     <input type="number" id="Age" @bind="newUser.Age" />
                 </div>
+                        @if (showError)
+                        {
+                            <p style="color: red;">Et eller flere felter er tomme, venligst udfyld dem!</p>
+                        }
                 <br />
                 <button class="btn btn-primary" type="submit">Opret Profil</button>
             </form>
@@ -78,23 +84,23 @@
             <h1>My Profile</h1>
             <h3>Your user information</h3>
             <div>
-                <label>First name:</label>
+                        <label class="font-weight-bold">First name:</label>
                 <p>@item.FirstName</p>
             </div>
             <div>
-                <label>Last Name:</label>
+                        <label class="font-weight-bold">Last Name:</label>
                 <p>@item.LastName</p>
             </div>
             <div>
-                <label>City: </label>
+                        <label class="font-weight-bold">City: </label>
                 <p>@item.City</p>
             </div>
             <div>
-                <label>Postal code: </label>
+                        <label class="font-weight-bold">Postal code: </label>
                 <p>@item.Postal</p>
             </div>
             <div>
-                <label>Age:</label>
+                        <label class="font-weight-bold">Age:</label>
                 <p>@item.Age</p>
             </div>
 
@@ -118,9 +124,11 @@
     // Strings
     public string? UserEmail;
     public string? name;
+    public string showException = string.Empty;
     //Bools
     private bool addedSuccessfully = false;
     private bool AddProfile = false;
+    private bool showError = false;
     // UserInfo List
     public List<UserInfo> userInfoList = new List<UserInfo>();
     // UserInfo property to create new user
@@ -135,6 +143,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _aesService.TestEncryptionDecryption();
         var AuthState = await authenticationStateTask; // Getting authentication state
         var user = AuthState.User;
         if (user.Identity != null)
@@ -163,6 +172,16 @@
         try
         {
             userInfoList = await _profileServiceContext.GetProfile(userEmail);
+
+            foreach(var userinfo in userInfoList)
+            {
+                userinfo.FirstName = _aesService.DecryptString(userinfo.FirstName);
+                userinfo.LastName = _aesService.DecryptString(userinfo.LastName);
+                userinfo.City = _aesService.DecryptString(userinfo.City);
+                userinfo.Postal = userinfo.Postal;
+                userinfo.Age = userinfo.Age;
+                
+            }
         }
         catch (Exception)
         {
@@ -175,11 +194,41 @@
     {
         try
         {
-            newUser.UserEmail = UserEmail;
-            await _profileServiceContext.CreateProfile(newUser);
-            addedSuccessfully = true;
-            AddProfile = false;
-            await GetProfile(UserEmail);
+            if (string.IsNullOrWhiteSpace(newUser.FirstName))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.LastName))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.City))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.Postal.ToString()))
+            {
+                showError = true;
+            }            
+            else if (string.IsNullOrWhiteSpace(newUser.Age.ToString()))
+            {
+                showError = true;
+            }            
+            else
+            {
+                newUser.FirstName = _aesService.EncryptString(newUser.FirstName);
+                newUser.LastName = _aesService.EncryptString(newUser.LastName);
+                newUser.City = _aesService.EncryptString(newUser.City);
+                newUser.UserEmail = UserEmail;
+                await _profileServiceContext.CreateProfile(newUser);
+                addedSuccessfully = true;
+                AddProfile = false;
+                await GetProfile(UserEmail);
+                if(showError == true)
+                {
+                    showError = false;
+                }
+            }
 
         }
         catch (Exception e)

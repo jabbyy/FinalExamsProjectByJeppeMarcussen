@@ -12,8 +12,8 @@ using Svendeprøve_projekt_BodyFitBlazor.Data;
 namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240529220939_FitnessInitialcommit")]
-    partial class FitnessInitialcommit
+    [Migration("20240609120229_test")]
+    partial class test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,10 +64,10 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
                     b.Property<int>("TrainingExerciseId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrainingExercisesId")
+                    b.Property<int>("TrainingLogId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TrainingLogId")
+                    b.Property<int?>("TrainingLogId1")
                         .HasColumnType("int");
 
                     b.Property<int>("weight")
@@ -75,9 +75,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TrainingExercisesId");
+                    b.HasIndex("TrainingExerciseId");
 
                     b.HasIndex("TrainingLogId");
+
+                    b.HasIndex("TrainingLogId1");
 
                     b.ToTable("trainingExerciseAddedToLogs");
                 });
@@ -172,13 +174,19 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
                 {
                     b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingExercises", "TrainingExercises")
                         .WithMany()
-                        .HasForeignKey("TrainingExercisesId");
+                        .HasForeignKey("TrainingExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", "trainingLog")
-                        .WithMany("ExerciseAddedToLog")
+                        .WithMany()
                         .HasForeignKey("TrainingLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", null)
+                        .WithMany("ExerciseAddedToLog")
+                        .HasForeignKey("TrainingLogId1");
 
                     b.Navigation("TrainingExercises");
 
@@ -198,11 +206,9 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", b =>
                 {
-                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", "UserInfo")
+                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.UserInfo", null)
                         .WithMany("log")
                         .HasForeignKey("UserInfoId");
-
-                    b.Navigation("UserInfo");
                 });
 
             modelBuilder.Entity("Svendeprøve_projekt_BodyFitBlazor.Models.Categories", b =>

@@ -6,6 +6,6 @@
         public DateTime Date { get; set; }
         public ICollection<TrainingExerciseAddedToLog> ExerciseAddedToLog { get; set; }
         public int userId { get; set; }
-        public UserInfo? UserInfo { get; set; }
+        
     }
 }
