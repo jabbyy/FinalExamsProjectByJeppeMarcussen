@@ -1,0 +1,17 @@
+﻿@page "/TestEncryption"
+@using Codes
+@inject AESEncryption _aes; 
+
+
+<h3>TestEncryption</h3>
+<p>@_aes.originalPlainText</p>
+<p>@_aes.encryptedText1</p>
+<p>@_aes.decryptedText1</p>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        _aes.TestEncryptionDecryption();
+    }
+}
