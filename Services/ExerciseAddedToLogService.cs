@@ -1,4 +1,5 @@
-﻿using Svendeprøve_projekt_BodyFitBlazor.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Svendeprøve_projekt_BodyFitBlazor.Models;
 using Svendeprøve_projekt_BodyFitBlazor.Repository;
 
 namespace Svendeprøve_projekt_BodyFitBlazor.Services
@@ -40,6 +41,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Services
         public async Task<int> GetLatestTrainingLogId()
         {
             return await _exerciseAddedRepo.GetLatestTrainingLogId();
+        }
+
+        public async Task<List<TrainingExerciseAddedToLog>> GetTrainingExerciseAddedToLogByTrainingLogId(int trainingLogId)
+        {
+            return await _exerciseAddedRepo.GetTrainingExerciseAddedToLogByTrainingLogId(trainingLogId);
         }
 
     }

@@ -4,7 +4,12 @@
 @inject UserProfileService _profileServiceContext;
 @inject NavigationManager _navigationManager;
 @using Codes
+@using System.Text.Json;
 @inject AESEncryption _aesService;
+@inject IJSRuntime _jsRuntime
+@inject Encryption _encryption;
+@using Microsoft.JSInterop
+
 
 <PageTitle>My Profile</PageTitle>
 <AuthorizeView>
@@ -95,6 +100,7 @@
                         <label class="font-weight-bold">City: </label>
                 <p>@item.City</p>
             </div>
+                    <p>@yes</p>
             <div>
                         <label class="font-weight-bold">Postal code: </label>
                 <p>@item.Postal</p>
@@ -108,6 +114,7 @@
             <button @onclick="() => DeleteInfo(item.Id)" type="button" class="btn btn-danger">Delete your info</button>
         </div>
     }
+    
 }
     </Authorized>
     <NotAuthorized>
@@ -119,6 +126,7 @@
 
 
 @code {
+    public string yes;
     [Parameter]
     public int Id { get; set; }
     // Strings
@@ -134,16 +142,18 @@
     // UserInfo property to create new user
     private UserInfo newUser = new UserInfo();
     UserInfo selectedUserInfo;
-
+    private UserInfo ProfileData { get; set; }
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationStateTask { get; set; }
 
-
-
+    // for session storage
+    private string firstName;
+    private string lastName;
+    private string city;
 
     protected override async Task OnInitializedAsync()
     {
-        _aesService.TestEncryptionDecryption();
+        //_aesService.TestEncryptionDecryption();
         var AuthState = await authenticationStateTask; // Getting authentication state
         var user = AuthState.User;
         if (user.Identity != null)
@@ -171,17 +181,9 @@
     {
         try
         {
+
             userInfoList = await _profileServiceContext.GetProfile(userEmail);
 
-            foreach(var userinfo in userInfoList)
-            {
-                userinfo.FirstName = _aesService.DecryptString(userinfo.FirstName);
-                userinfo.LastName = _aesService.DecryptString(userinfo.LastName);
-                userinfo.City = _aesService.DecryptString(userinfo.City);
-                userinfo.Postal = userinfo.Postal;
-                userinfo.Age = userinfo.Age;
-                
-            }
         }
         catch (Exception)
         {
@@ -216,9 +218,6 @@
             }            
             else
             {
-                newUser.FirstName = _aesService.EncryptString(newUser.FirstName);
-                newUser.LastName = _aesService.EncryptString(newUser.LastName);
-                newUser.City = _aesService.EncryptString(newUser.City);
                 newUser.UserEmail = UserEmail;
                 await _profileServiceContext.CreateProfile(newUser);
                 addedSuccessfully = true;

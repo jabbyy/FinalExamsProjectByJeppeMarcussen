@@ -12,6 +12,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
         Task DeleteExerciseAddedToLog(int id);
         Task UpdateExercisesAddedToLog(TrainingExerciseAddedToLog exerciseAddedToLog);
         Task<int> GetLatestTrainingLogId();
+        Task<List<TrainingExerciseAddedToLog>> GetTrainingExerciseAddedToLogByTrainingLogId(int trainingLogId);
     }
     public class ExerciseAddedToLogRepo : IExercisesAddedToLogRepo
     {
@@ -57,5 +58,13 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
             _databaseContext.Entry(exerciseAddedToLog).State = EntityState.Modified;
             await _databaseContext.SaveChangesAsync();
         }
+        public async Task<List<TrainingExerciseAddedToLog>> GetTrainingExerciseAddedToLogByTrainingLogId(int trainingLogId)
+        {
+            return await _databaseContext.trainingExerciseAddedToLogs
+                .Include(teal => teal.TrainingExercises) // Include the TrainingExercises
+                .Where(teal => teal.TrainingLogId == trainingLogId) // Filter by TrainingLogId
+                .ToListAsync();
+        }
+
     }
 }

@@ -53,5 +53,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Services
             return false; // Log date is not today's date or not found
         }
 
+        public async Task<List<int>> GetAllTrainingLogIds()
+        {
+            return await _trainingLogRepo.GetAllTrainingLogIds();
+        }
+
+
     }
 }
