@@ -12,6 +12,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
         Task<TrainingLog> DeleteTrainingLog(int id);
         Task UpdateTrainingLog(TrainingLog trainingLog);
         Task<TrainingLog> GetTrainingLogByDate(DateTime date, int userId);
+        Task<List<int>> GetAllTrainingLogIds();
     }
 
     public class TrainingLogRepo : ITrainingLogRepo
@@ -51,12 +52,22 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
             return await _databaseContext.trainingLog.FindAsync(id);
         }
 
+        //public async Task<List<TrainingLog>> GetTrainingLogs(int Id)
+        //{
+        //    List<TrainingLog> trainingLogs = await _databaseContext
+        //        .trainingLog.Include(I => I.ExerciseAddedToLog)
+        //        .ThenInclude(TI => TI.TrainingExercises)
+        //        .Where(c => c.userId == Id).ToListAsync();
+        //    return trainingLogs;
+        //}      
         public async Task<List<TrainingLog>> GetTrainingLogs(int Id)
         {
             List<TrainingLog> trainingLogs = await _databaseContext
-                .trainingLog.Include(I => I.ExerciseAddedToLog)
-                .ThenInclude(TI => TI.TrainingExercises)
-                .Where(c => c.userId == Id).ToListAsync();
+                .trainingLog
+                .Where(ui => ui.userId == Id)
+                .ToListAsync();
+
+
             return trainingLogs;
         }
 
@@ -65,6 +76,14 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
             _databaseContext.Entry(trainingLog).State = EntityState.Modified;
             await _databaseContext.SaveChangesAsync();
 
+        }
+
+        public async Task<List<int>> GetAllTrainingLogIds()
+        {
+            var trainingLogIds = await _databaseContext.trainingLog
+                .Select(i => i.Id)
+                .ToListAsync();
+            return trainingLogIds;
         }
     }
 }

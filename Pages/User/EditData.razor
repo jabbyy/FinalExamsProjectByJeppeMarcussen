@@ -1,8 +1,11 @@
 ﻿@page "/edit/{Id:int}"
 @using Models
+@using Codes
 @inject NavigationManager _navigationManager;
 @inject Repository.UserRepo _context;
 @inject Services.UserProfileService _userProfileServiceContext;
+
+
 
 <AuthorizeView Context="AuthContext">
     <Authorized>
@@ -123,7 +126,7 @@ else
                 }
                 else
                 {
-                await _userProfileServiceContext.UpdateProfile(Id, user);
+                    await _userProfileServiceContext.UpdateProfile(Id, user);
                 _navigationManager.NavigateTo("/MyProfile");
                     
                 }

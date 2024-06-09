@@ -19,6 +19,12 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Data
 
         public DbSet<TrainingExerciseAddedToLog> trainingExerciseAddedToLogs { get; set; }
 
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseLazyLoadingProxies();
+        //}
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,18 +38,17 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Data
                 .WithMany(c => c.Exercises)
                 .HasForeignKey(c => c.CategoryId);
 
-            //modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.TrainingExercises)
-            //    .WithMany()
-            //    .HasForeignKey(t => t.TrainingExerciseId);
+            modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.TrainingExercises)
+                .WithMany()
+                .HasForeignKey(t => t.TrainingExerciseId);
 
-            //modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.trainingLog)
-            //    .WithMany()
-            //    .HasForeignKey(t => t.TrainingLogId);
+            modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.trainingLog)
+                .WithMany()
+                .HasForeignKey(t => t.TrainingLogId);
 
-            /// 1(user) to many(Training Programs)
-            //modelBuilder.Entity<TrainingProgram>().HasOne(c => c.UserInfo)
-            //    .WithMany(c => c.programs)
-            //    .HasForeignKey(c => c.Id);
+           
+
+
 
             /// Setting default value of th Visible propterty to false 
             modelBuilder.Entity<Categories>()

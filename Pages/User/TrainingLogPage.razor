@@ -10,6 +10,7 @@
 
 
 
+
 <PageTitle>Trænings Log</PageTitle>
 <AuthorizeView>
     <Authorized>
@@ -100,7 +101,7 @@
 
             <div class="additional-content" style="display: @(expandedLogId == log.Id ? "block" : "none")">
                 <div class="row">
-                    @foreach (var exercise in log.ExerciseAddedToLog)
+                    @foreach (var exerciseAdded in exerciseAddedList)
                     {
                         <div class="col-md-2 mb-3">
                             <div class="card border border-primary">
@@ -108,17 +109,17 @@
 
                                     <label>Navn:</label>
 
-                                            <p class="exercise-name">@exercise.TrainingExercises.Name</p>
+                                            <p class="exercise-name">@exerciseAdded.TrainingExercises.Name</p>
                                                 
 
                                     <label>Repetitioner:</label>
-                                    <p class="exercise-details">@exercise.Repetitions</p>
+                                    <p class="exercise-details">@exerciseAdded.Repetitions</p>
                                     <label>Sets:</label>
-                                    <p class="exercise-details">@exercise.Sets</p>
+                                    <p class="exercise-details">@exerciseAdded.Sets</p>
                                     <label>Vægt:</label>
-                                    <p class="exercise-details">@exercise.weight KG</p>
-                                    <button @onclick="() => EditExerciseAdded(exercise)" class="btn btn-secondary">Rediger</button>
-                                    <button @onclick="() => DeleteExerciseAdded(exercise.Id)" class="btn btn-danger">Slet</button>
+                                    <p class="exercise-details">@exerciseAdded.weight KG</p>
+                                    <button @onclick="() => EditExerciseAdded(exerciseAdded)" class="btn btn-secondary">Rediger</button>
+                                    <button @onclick="() => DeleteExerciseAdded(exerciseAdded.Id)" class="btn btn-danger">Slet</button>
                                 </div>
                             </div>
                         </div>
@@ -167,6 +168,7 @@
     // Lists
     public List<TrainingLog> trainingLogsList = new List<TrainingLog>();
     public List<UserInfo> userInfoList = new List<UserInfo>();
+    public List<TrainingExerciseAddedToLog> exerciseAddedList = new List<TrainingExerciseAddedToLog>();
 
 
     [CascadingParameter]
@@ -211,6 +213,9 @@
                 errorFromGettingLog = "Couldnt retrieve logs)";
             }
         }
+
+        // Getting all exercisesadded to log by ID
+        await getExerciseAddedToLogByTrainingLogId();
     }
 
     public async Task EditExerciseAdded(TrainingExerciseAddedToLog trainingExerciseAddedToLog)
@@ -228,6 +233,7 @@
         {
             await _exercisesAddedToLog.DeleteExerciseAdded(Id);
             await GetTraininglogs(userId);
+            await getExerciseAddedToLogByTrainingLogId();
         }
         catch (Exception)
         {
@@ -264,12 +270,12 @@
         }
         catch (Exception)
         {
-            
+
             throw;
         }
     }
 
-    public async Task GetTraininglogs(int Id)
+    public async Task GetTraininglogs(int Id) // Get Logs
     {
         try
         {
@@ -281,7 +287,7 @@
         }
     }
 
-    public async Task CreateTrainingLog(TrainingLog trainingLog)
+    public async Task CreateTrainingLog(TrainingLog trainingLog) // Creates a training log
     {
         try
         {
@@ -314,7 +320,7 @@
         }
     }
 
-    public async Task GetProfile(string userEmail)
+    public async Task GetProfile(string userEmail) // Gets user profile
     {
         try
         {
@@ -334,7 +340,7 @@
         }
     }
 
-    public async Task DeleteTrainingLog(int Id)
+    public async Task DeleteTrainingLog(int Id) // Deletes the log 
     {
         if (Id > 0)
         {
@@ -354,11 +360,22 @@
         }
     }
 
+    private async Task getExerciseAddedToLogByTrainingLogId() // Gets exercises by training log id.
+    {
+        var trainingLogIds = await _TrainingLogContext.GetAllTrainingLogIds();
+
+        foreach(var trainingLogId in trainingLogIds)
+        {
+            var exercisesAddedToLog = await _exercisesAddedToLog.GetTrainingExerciseAddedToLogByTrainingLogId(trainingLogId);
+            exerciseAddedList.AddRange(exercisesAddedToLog);
+        }
+    }
 
 
 
 
-    void ToggleContent(int logId)
+
+    void ToggleContent(int logId) // Toggle traininlog content 
     {
         if (expandedLogId == logId)
         {
