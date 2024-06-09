@@ -61,10 +61,10 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
                     b.Property<int>("TrainingExerciseId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrainingExercisesId")
+                    b.Property<int>("TrainingLogId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TrainingLogId")
+                    b.Property<int?>("TrainingLogId1")
                         .HasColumnType("int");
 
                     b.Property<int>("weight")
@@ -72,9 +72,11 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TrainingExercisesId");
+                    b.HasIndex("TrainingExerciseId");
 
                     b.HasIndex("TrainingLogId");
+
+                    b.HasIndex("TrainingLogId1");
 
                     b.ToTable("trainingExerciseAddedToLogs");
                 });
@@ -169,13 +171,19 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
                 {
                     b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingExercises", "TrainingExercises")
                         .WithMany()
-                        .HasForeignKey("TrainingExercisesId");
+                        .HasForeignKey("TrainingExerciseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", "trainingLog")
-                        .WithMany("ExerciseAddedToLog")
+                        .WithMany()
                         .HasForeignKey("TrainingLogId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Svendeprøve_projekt_BodyFitBlazor.Models.TrainingLog", null)
+                        .WithMany("ExerciseAddedToLog")
+                        .HasForeignKey("TrainingLogId1");
 
                     b.Navigation("TrainingExercises");
 
