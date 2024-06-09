@@ -32,6 +32,14 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Data
                 .WithMany(c => c.Exercises)
                 .HasForeignKey(c => c.CategoryId);
 
+            modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.TrainingExercises)
+                .WithMany()
+                .HasForeignKey(t => t.TrainingExerciseId);
+
+            modelBuilder.Entity<TrainingExerciseAddedToLog>().HasOne(t => t.trainingLog)
+                .WithMany()
+                .HasForeignKey(t => t.TrainingLogId);
+
             /// 1(user) to many(Training Programs)
             //modelBuilder.Entity<TrainingProgram>().HasOne(c => c.UserInfo)
             //    .WithMany(c => c.programs)
