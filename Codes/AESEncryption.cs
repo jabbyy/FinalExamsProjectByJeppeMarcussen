@@ -21,6 +21,8 @@
                 aesAlg.Key = key;
                 aesAlg.GenerateIV(); // Generate a random IV for each encryption
 
+                aesAlg.Padding = PaddingMode.PKCS7;
+
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
                 byte[] encrypted;
@@ -60,6 +62,8 @@
                 Array.Copy(encryptedData, iv.Length, cipherText, 0, cipherText.Length);
 
                 aesAlg.IV = iv;
+
+                aesAlg.Padding = PaddingMode.PKCS7;
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
