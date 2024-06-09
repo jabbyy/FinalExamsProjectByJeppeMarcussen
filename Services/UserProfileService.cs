@@ -77,6 +77,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Services
             profile.FirstName = _aes.DecryptString(profile.FirstName);
             profile.LastName = _aes.DecryptString(profile.LastName);
             profile.City = _aes.DecryptString(profile.City);
+
         }
     }
 }
