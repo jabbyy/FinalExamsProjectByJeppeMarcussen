@@ -88,7 +88,7 @@
                     <h4 id="h4-hover" style="color: black; cursor: pointer;" @onclick="() => ToggleContent(log.Id)">@log.Date.ToShortDateString()</h4>
                 </div>
                 <div class="col-auto">
-                    <button style="max-width: 80px;" class="btn btn-secondary">Rediger</button>
+                    @*<button style="max-width: 80px;" class="btn btn-secondary">Rediger</button>*@
                 </div>
                 <div class="col-auto">
                     <button @onclick="() => DeleteTrainingLog(log.Id)" style="max-width: 70px;" class="btn btn-danger">Slet</button>
@@ -232,8 +232,8 @@
         try
         {
             await _exercisesAddedToLog.DeleteExerciseAdded(Id);
-            await GetTraininglogs(userId);
             await getExerciseAddedToLogByTrainingLogId();
+
         }
         catch (Exception)
         {
@@ -329,7 +329,6 @@
             if (userInfoList != null && userInfoList.Count > 0)
             {
                 userId = userInfoList[0].Id;
-
             }
 
         }
@@ -362,6 +361,8 @@
 
     private async Task getExerciseAddedToLogByTrainingLogId() // Gets exercises by training log id.
     {
+        exerciseAddedList.Clear();
+
         var trainingLogIds = await _TrainingLogContext.GetAllTrainingLogIds();
 
         foreach(var trainingLogId in trainingLogIds)

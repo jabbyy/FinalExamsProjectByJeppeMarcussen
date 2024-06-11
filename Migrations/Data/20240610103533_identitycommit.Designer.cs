@@ -9,11 +9,11 @@ using Svendeprøve_projekt_BodyFitBlazor.Data;
 
 #nullable disable
 
-namespace Svendeprøve_projekt_BodyFitBlazor.Migrations
+namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Data
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240529191931_InitialCommit")]
-    partial class InitialCommit
+    [Migration("20240610103533_identitycommit")]
+    partial class identitycommit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

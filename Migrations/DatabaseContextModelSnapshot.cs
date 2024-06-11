@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Svendeprøve_projekt_BodyFitBlazor.Data;
 
 #nullable disable
 
-namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
+namespace Svendeprøve_projekt_BodyFitBlazor.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240609120229_test")]
-    partial class test
+    partial class DatabaseContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,8 +94,8 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Database
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()

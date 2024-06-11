@@ -50,7 +50,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Repository
 
         public async Task<TrainingExerciseAddedToLog> GetTrainingExerciseAddedToLogById(int id)
         {
-            return await _databaseContext.trainingExerciseAddedToLogs.Include(s => s.TrainingExercises).FirstOrDefaultAsync(s => s.Id == id);
+            return await _databaseContext.trainingExerciseAddedToLogs.Include(s => s.TrainingExercises).FirstOrDefaultAsync(s => s.TrainingLogId == id);
         }
 
         public async Task UpdateExercisesAddedToLog(TrainingExerciseAddedToLog exerciseAddedToLog)

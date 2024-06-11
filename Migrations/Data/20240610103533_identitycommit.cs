@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Svendeprøve_projekt_BodyFitBlazor.Migrations
+namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Data
 {
     /// <inheritdoc />
-    public partial class InitialCommit : Migration
+    public partial class identitycommit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

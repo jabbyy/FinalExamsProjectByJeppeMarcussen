@@ -8,7 +8,7 @@ using Svendeprøve_projekt_BodyFitBlazor.Data;
 
 #nullable disable
 
-namespace Svendeprøve_projekt_BodyFitBlazor.Migrations
+namespace Svendeprøve_projekt_BodyFitBlazor.Migrations.Data
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot

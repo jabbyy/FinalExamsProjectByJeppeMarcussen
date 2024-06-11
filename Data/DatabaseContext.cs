@@ -30,7 +30,7 @@ namespace Svendeprøve_projekt_BodyFitBlazor.Data
             base.OnModelCreating(modelBuilder);
 
 
-            modelBuilder.Entity<TrainingExercises>().Property(x => x.Description).HasMaxLength(160);
+            modelBuilder.Entity<TrainingExercises>().Property(x => x.Description).HasMaxLength(300);
 
             /// Creating the 1 to many relationship between categories(1) and training exercises(many). 
             /// One category has many training exercises. One training exercise only has one category. 

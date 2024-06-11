@@ -2,10 +2,15 @@
 @using Microsoft.AspNetCore.Identity;
 @using Microsoft.EntityFrameworkCore;
 @inject UserManager<IdentityUser> UserManager;
+@inject RoleManager<IdentityRole> RoleManager
 <AuthorizeView Roles="Administrator">
     <Authorized >
 <h3>Administrer brugere</h3>
-
+        <div>
+            <h4>Create New Role</h4>
+            <input type="text" @bind="newRoleName" placeholder="Enter new role name" />
+            <button @onclick="CreateRole">Create Role</button>
+        </div>
 @foreach(var user in identityUser)
 {
     <p>
@@ -21,6 +26,8 @@
 </AuthorizeView>
 
 @code {
+
+    private string newRoleName;
     public List<IdentityUser> identityUser = new List<IdentityUser>();
     public Dictionary<string, string> userRoles = new Dictionary<string, string>();
     public Dictionary<string, string> rolesDictionary = new Dictionary<string, string>();
@@ -28,7 +35,7 @@
     {
         identityUser = await UserManager.Users.ToListAsync();
 
-            rolesDictionary = await GetUserRoles();
+        rolesDictionary = await GetUserRoles();
 
     }
 
@@ -65,6 +72,27 @@
         var user = await UserManager.FindByIdAsync(userId);
         await UserManager.DeleteAsync(user);
         identityUser = await UserManager.Users.ToListAsync();
+    }
+
+    public async Task CreateRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRoleName))
+        {
+            var roleExists = await RoleManager.RoleExistsAsync(newRoleName);
+            if (!roleExists)
+            {
+                var role = new IdentityRole(newRoleName);
+                var result = await RoleManager.CreateAsync(role);
+                if (result.Succeeded)
+                {
+                    newRoleName = string.Empty; // gør input tom
+                }
+                else
+                {
+                   // Fejl behandling her
+                }
+            }
+        }
     }
 
 }
