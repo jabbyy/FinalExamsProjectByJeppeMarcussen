@@ -11,9 +11,18 @@
 @using Microsoft.JSInterop
 
 
+<style>
+     .custom-border {
+         display: inline-block;
+         border: 2px solid; /* Customize border color if needed */
+         padding: 0.5rem; /* Small padding */
+         border-radius: 0.25rem; /* Optional: Rounded corners */
+     }
+</style>
 <PageTitle>My Profile</PageTitle>
 <AuthorizeView>
     <Authorized>
+                <div class="container mt-5 border border-primary border-1 p-2">
 
 
 @if (addedSuccessfully)
@@ -71,7 +80,21 @@
                 </div>
                         @if (showError)
                         {
-                            <p style="color: red;">Et eller flere felter er tomme, venligst udfyld dem!</p>
+                                <div style="background-color: lightcoral;" class="mt-3 mb-3 border-danger custom-border">
+                                    <p style="color: dimgrey; background-color: lightcoral;">Et eller flere felter er tomme, venligst udfyld dem!</p>
+                                </div> 
+                        }
+                        else if(ageNegativeNumber) 
+                        {
+                                <div style="background-color: lightcoral;" class="mt-3 mb-3 border-danger custom-border">
+                                    <p style="color: black; background-color: lightcoral;">Alder kan ikke være negative!</p>
+                                </div> 
+                        }
+                        else if(postalNegativeNumber) 
+                        {
+                                    <div style="background-color: lightcoral;" class="mt-3 mb-3 border-danger custom-border">
+                                        <p style="color: dimgrey;">Dit post nummer kan ikke være negative!</p>
+                                    </div>
                         }
                 <br />
                 <button class="btn btn-primary" type="submit">Opret Profil</button>
@@ -116,6 +139,7 @@
     }
     
 }
+                </div>
     </Authorized>
     <NotAuthorized>
         <p>You are not authorized to see this content!</p>
@@ -126,6 +150,8 @@
 
 
 @code {
+    public bool ageNegativeNumber = false;
+    public bool postalNegativeNumber = false;
     public string yes;
     [Parameter]
     public int Id { get; set; }
@@ -210,12 +236,20 @@
             }            
             else if (string.IsNullOrWhiteSpace(newUser.Postal.ToString()))
             {
-                showError = true;
+                    showError = true;
             }            
             else if (string.IsNullOrWhiteSpace(newUser.Age.ToString()))
-            {
+            {  
                 showError = true;
-            }            
+            }
+            else if (newUser.Age < 0)
+            {
+                ageNegativeNumber = true;
+            }
+            else if (newUser.Postal < 0)
+            {
+                postalNegativeNumber = true;
+            }
             else
             {
                 newUser.UserEmail = UserEmail;
